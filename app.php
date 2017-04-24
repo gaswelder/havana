@@ -1,0 +1,116 @@
+<?php
+require __DIR__.'/match.php';
+require __DIR__.'/response.php';
+require __DIR__.'/request.php';
+require __DIR__.'/db/db.php';
+require __DIR__.'/db/dbobject.php';
+require __DIR__.'/tpl.php';
+require __DIR__.'/user.php';
+require __DIR__.'/func.php';
+
+set_error_handler(function ($errno, $msg, $path, $line, $context) {
+	throw new Exception("$msg at $path:$line");
+});
+
+class App
+{
+	private $res = ['get' => [], 'post' => []];
+
+	private $before = [];
+
+	private $dir;
+
+	function __construct($dir)
+	{
+		$this->dir = $dir;
+		$this->parseEnv();
+	}
+
+	private function parseEnv()
+	{
+		$path = $this->dir.'/.env';
+		if (!file_exists($path)) {
+			return;
+		}
+		$lines = array_map('trim', file($path));
+		foreach ($lines as $line) {
+			if (strlen($line) == 0 || $line[0] == '#') {
+				continue;
+			}
+
+			list($name, $val) = array_map('trim', explode('=', $line, 2));
+			if (getenv($name) !== false) {
+				continue;
+			}
+			putenv("$name=$val");
+			$_ENV[$name] = $val;
+		}
+	}
+
+	function get($path, $func)
+	{
+		$this->res['get'][$path] = $func;
+	}
+
+	function post($path, $func)
+	{
+		$this->res['post'][$path] = $func;
+	}
+
+	function beforeDispatch($func)
+	{
+		$this->before[] = $func;
+	}
+
+	function run()
+	{
+		$GLOBALS['__APPDIR'] = $this->dir;
+		try {
+			$this->serve();
+		}
+		catch (Exception $e){
+			echo $e->getMessage();
+		}
+	}
+
+	private function serve()
+	{
+		$uri = $_SERVER['REQUEST_URI'];
+		$op = strtolower($_SERVER['REQUEST_METHOD']);
+
+		if (!isset($this->res[$op])) {
+			response::make(405)->flush();
+			return;
+		}
+
+		foreach ($this->before as $func) {
+			$r = call_user_func($func, $uri);
+			if ($r) {
+				response::make($r)->flush();
+				return;
+			}
+		}
+
+		$match_args = [];
+		$match = null;
+		foreach ($this->res[$op] as $path => $func) {
+			$args = match_url($uri, $path);
+			if ($args === false) {
+				continue;
+			}
+
+			if (!$match || count($args) > count($match_args)) {
+				$match = $func;
+				$match_args = $args;
+			}
+		}
+
+		if (!$match) {
+			response::make(404)->flush();
+			return;
+		}
+
+		$val = call_user_func_array($match, $match_args);
+		response::make($val)->flush();
+	}
+}
