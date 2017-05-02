@@ -15,6 +15,7 @@ set_error_handler(function ($errno, $msg, $path, $line, $context) {
 class App
 {
 	private $res = ['get' => [], 'post' => []];
+	private $prefix = '';
 
 	private $before = [];
 
@@ -24,6 +25,11 @@ class App
 	{
 		$this->dir = $dir;
 		$this->parseEnv();
+	}
+
+	function setPrefix($pref)
+	{
+		$this->prefix = $pref;
 	}
 
 	private function parseEnv()
@@ -49,12 +55,14 @@ class App
 
 	function get($path, $func)
 	{
-		$this->res['get'][$path] = $func;
+		$f = str_replace('//', '/', $this->prefix.'/'.$path);
+		$this->res['get'][$f] = $func;
 	}
 
 	function post($path, $func)
 	{
-		$this->res['post'][$path] = $func;
+		$f = str_replace('//', '/', $this->prefix.'/'.$path);
+		$this->res['post'][$f] = $func;
 	}
 
 	function beforeDispatch($func)
