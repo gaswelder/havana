@@ -72,7 +72,7 @@ function match_url($uri, $pat)
 		//return [];
 	}
 
-	$uri_parts = explode('/', $uri);
+	$uri_parts = array_map('urldecode', explode('/', $uri));
 	$pat_parts = explode('/', $pat);
 
 	if (count($uri_parts) != count($pat_parts)) {
