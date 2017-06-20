@@ -42,6 +42,12 @@ class dbobject
 		return $l;
 	}
 
+	/**
+	 * Returns the object with the given identifier or null
+	 * if there is no such object in the database.
+	 *
+	 * @return static|null
+	 */
 	static function get($id)
 	{
 		$table_name = static ::TABLE_NAME;
@@ -55,5 +61,18 @@ class dbobject
 		$obj->id = $id;
 		return $obj;
 	}
-}
 
+	/**
+	 * Returns array of objects with the given identifiers.
+	 *
+	 * @return array
+	 */
+	static function getMultiple($ids)
+	{
+		$r = [];
+		foreach($ids as $id) {
+			$r[] = self::get($id);
+		}
+		return $r;
+	}
+}
