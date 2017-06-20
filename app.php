@@ -25,6 +25,7 @@ class App
 	{
 		$this->dir = $dir;
 		$this->parseEnv();
+		$this->addLoader();
 	}
 
 	function setPrefix($pref)
@@ -51,6 +52,20 @@ class App
 			putenv("$name=$val");
 			$_ENV[$name] = $val;
 		}
+	}
+
+	/**
+	 * Registers a class loader that loads classes from the
+	 * application's directory.
+	 */
+	private function addLoader()
+	{
+		spl_autoload_register(function($className) {
+			$path = $this->dir.'/classes/'.$className.'.php';
+			if (file_exists($path)) {
+				require_once($path);
+			}
+		});
 	}
 
 	function get($path, $func)
