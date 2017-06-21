@@ -85,7 +85,10 @@ class App
 		$this->before[] = $func;
 	}
 
-	function run()
+	/**
+	 * Runs the application.
+	 */
+	public function run()
 	{
 		$GLOBALS['__APPDIR'] = $this->dir;
 		try {
