@@ -98,7 +98,9 @@ class App
 
 	private function serve()
 	{
-		$uri = $_SERVER['REQUEST_URI'];
+		$url = parse_url($_SERVER['REQUEST_URI']);
+		$requestedPath = $url['path'];
+
 		$op = strtolower($_SERVER['REQUEST_METHOD']);
 
 		if (!isset($this->res[$op])) {
@@ -107,7 +109,7 @@ class App
 		}
 
 		foreach ($this->before as $func) {
-			$r = call_user_func($func, $uri);
+			$r = call_user_func($func, $requestedPath);
 			if ($r) {
 				response::make($r)->flush();
 				return;
@@ -117,7 +119,7 @@ class App
 		$match_args = [];
 		$match = null;
 		foreach ($this->res[$op] as $path => $func) {
-			$args = match_url($uri, $path);
+			$args = match_url($requestedPath, $path);
 			if ($args === false) {
 				continue;
 			}
