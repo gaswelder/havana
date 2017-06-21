@@ -38,6 +38,7 @@ class dbclient
 		}
 
 		$this->db = new PDO($spec, $u['user'], $u['pass']);
+		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		/*
 		 * If we work with mysql and mysqlnd is used, get it to
@@ -96,7 +97,7 @@ class dbclient
 			return null;
 		}
 		if (count($rows) > 1) {
-			trigger_error("getRecord received more than one row");
+			throw new Exception("getRecord received more than one row");
 		}
 		return $rows[0];
 	}
@@ -139,25 +140,20 @@ class dbclient
 		}
 
 		if (count($values) > 1) {
-			trigger_error("getValue received more than one value");
+			throw new Exception("getValue received more than one value");
 		}
 		return $values[0];
 	}
 
+	/**
+	 * Runs the given query with the given arguments.
+	 */
 	private function run($args)
 	{
 		$this->affected_rows = 0;
 		$tpl = array_shift($args);
 		$st = $this->db->prepare($tpl);
-		if (!$st) {
-			trigger_error("Couldn't prepare $tpl");
-			return null;
-		}
-		if (!$st->execute($args)) {
-			trigger_error("Couldn't run $tpl");
-			return null;
-		}
-
+		$st->execute($args);
 		$this->affected_rows = $st->rowCount();
 		return $st;
 	}
@@ -216,24 +212,33 @@ class dbclient
 		return $this->affectedRows();
 	}
 
+	/**
+	 * Begins a new transaction.
+	 *
+	 * @throws PDOException
+	 */
 	function begin()
 	{
-		if (!$this->db->beginTransaction()) {
-			trigger_error("Couldn't start transaction");
-		}
+		$this->db->beginTransaction();
 	}
 
+	/**
+	 * Ends the current transation.
+	 *
+	 * @throws PDOException
+	 */
 	function end()
 	{
-		if (!$this->db->commit()) {
-			trigger_error("Couldn't commit transaction");
-		}
+		$this->db->commit();
 	}
 
+	/**
+	 * Cancels the current transaction.
+	 *
+	 * @throws PDOException
+	 */
 	function cancel()
 	{
-		if (!$this->db->rollback()) {
-			trigger_error("Couldn't cancel transaction");
-		}
+		$this->db->rollback();
 	}
 }
