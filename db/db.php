@@ -133,19 +133,10 @@ class dbclient
 	function getValue($query, $__args__ = null)
 	{
 		$st = $this->run(func_get_args());
-		$values = [];
-		while (1) {
-			$row = $st->fetch(PDO::FETCH_NUM);
-			if (!$row) {
-				break;
-			}
-			$values[] = $row[0];
-		}
+		$row = $st->fetch(PDO::FETCH_NUM);
 		$st->closeCursor();
-		if (empty($values)) {
-			return null;
-		}
-		return $values[0];
+		if (!$row) return null;
+		return $row[0];
 	}
 
 	/**
