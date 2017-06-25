@@ -102,7 +102,7 @@ class App
 		$op = strtolower($_SERVER['REQUEST_METHOD']);
 
 		if (!isset($this->res[$op])) {
-			response::make(405)->flush();
+			response::make(response::METHOD_NOT_ALLOWED)->flush();
 			return;
 		}
 
@@ -129,7 +129,7 @@ class App
 		}
 
 		if (!$match) {
-			response::make(404)->flush();
+			response::make(response::NOTFOUND)->flush();
 			return;
 		}
 
