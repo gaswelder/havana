@@ -6,11 +6,11 @@ class response
 	public $status = 200;
 	private $headers = [];
 
-	const BADREQ = 400;
-	const FORBIDDEN = 403;
-	const NOTFOUND = 404;
-	const METHOD_NOT_ALLOWED = 405;
-	const ERROR = 500;
+	const STATUS_BADREQ = 400;
+	const STATUS_FORBIDDEN = 403;
+	const STATUS_NOTFOUND = 404;
+	const STATUS_METHOD_NOT_ALLOWED = 405;
+	const STATUS_SERVER_ERROR = 500;
 
 	private static $codes = array(
 		'200' => 'OK',
@@ -170,4 +170,3 @@ class response
 		return self::make(self::ERROR);
 	}
 }
-
