@@ -85,8 +85,13 @@ class dbclient
 		return $rows;
 	}
 
-	/*
-	 * Queries and returns one row
+	/**
+	 * Queries and returns one row from the result.
+	 * Returns null if there are no rows in the result.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $__args__ Query parameters
+	 * @return array|null
 	 */
 	function getRecord($query, $__args__ = null)
 	{
@@ -95,9 +100,6 @@ class dbclient
 		$st->closeCursor();
 		if (empty($rows)) {
 			return null;
-		}
-		if (count($rows) > 1) {
-			throw new Exception("getRecord received more than one row");
 		}
 		return $rows[0];
 	}
@@ -120,8 +122,13 @@ class dbclient
 		return $values;
 	}
 
-	/*
-	 * Queries and returns one value
+	/**
+	 * Queries and returns the first column from the first row.
+	 * Returns null if there are now rows in the result.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $__args__ Query parameters
+	 * @return mixed|null
 	 */
 	function getValue($query, $__args__ = null)
 	{
@@ -137,10 +144,6 @@ class dbclient
 		$st->closeCursor();
 		if (empty($values)) {
 			return null;
-		}
-
-		if (count($values) > 1) {
-			throw new Exception("getValue received more than one value");
 		}
 		return $values[0];
 	}
