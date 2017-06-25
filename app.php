@@ -133,6 +133,11 @@ class App
 			return;
 		}
 
+		// If the given handler is a class, call its "run" method.
+		// If not, call the handler as a function.
+		if (!is_callable($match) && class_exists($match)) {
+			$match = [new $match, 'run'];
+		}
 		$val = call_user_func_array($match, $match_args);
 		response::make($val)->flush();
 	}
