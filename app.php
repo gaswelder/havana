@@ -91,12 +91,7 @@ class App
 	public function run()
 	{
 		$GLOBALS['__APPDIR'] = $this->dir;
-		try {
-			$this->serve();
-		}
-		catch (Exception $e){
-			echo $e->getMessage();
-		}
+		$this->serve();
 	}
 
 	private function serve()
