@@ -75,4 +75,30 @@ class dbobject
 		}
 		return $r;
 	}
+
+	/**
+	 * Returns the first instance matching the given filter.
+	 * If there is no match, creates and saves a new instance and returns it.
+	 *
+	 * @param array $filter
+	 * @return static
+	 */
+	static function findOrCreate($filter)
+	{
+		$cond = [];
+		$values = [];
+		foreach ($filter as $field => $value) {
+			$cond[] = "$field = ?";
+			$values[] = $value;
+		}
+		$q = 'SELECT id FROM '.static::TABLE_NAME.' WHERE '.implode(' AND ', $cond);
+		$id = call_user_func_array([db(), 'getValue'], array_merge([$q], $values));
+		if ($id) return static::get($id);
+		$obj = new static();
+		foreach ($filter as $k => $v) {
+			$obj->$k = $v;
+		}
+		$obj->save();
+		return $obj;
+	}
 }
