@@ -1,7 +1,7 @@
 <?php
 class dbobject
 {
-	const TABLE_NAME = null;
+	const TABLE_NAME = '__OVERRIDE_THIS!';
 	const TABLE_KEY = 'id';
 
 	function save()
