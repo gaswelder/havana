@@ -85,6 +85,22 @@ class request
 			return $func($value);
 		}
 	}
+
+	static function domain()
+	{
+		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+			$protocol = "https";
+		}
+		else {
+			$protocol = "http";
+		}
+		return $protocol.'://'.$_SERVER['HTTP_HOST'];
+	}
+
+	static function url()
+	{
+		return self::domain().$_SERVER['REQUEST_URI'];
+	}
 }
 
 ?>
