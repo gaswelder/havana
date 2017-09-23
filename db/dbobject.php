@@ -115,4 +115,30 @@ class dbobject
 		$obj->save();
 		return $obj;
 	}
+
+	static function find($filter)
+	{
+		$filter = array_merge(static::getBaseFilter(), $filter);
+		$cond = [];
+		$values = [];
+		foreach ($filter as $field => $value) {
+			if ($value === null) {
+				$cond[] = '"'.$field.'" IS NULL';
+				continue;
+			}
+			$cond[] = '"'.$field.'" = ?';
+			$values[] = $value;
+		}
+		$q = 'SELECT * FROM '.static::TABLE_NAME;
+		if (!empty($cond)) {
+			$q .= ' WHERE '.implode(' AND ', $cond);
+		}
+		$rows = call_user_func_array([db(), 'getRecords'], array_merge([$q], $values));
+		return static::fromRows($rows);
+	}
+
+	protected static function getBaseFilter()
+	{
+		return [];
+	}
 }
