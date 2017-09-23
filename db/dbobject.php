@@ -64,10 +64,10 @@ class dbobject
 	 */
 	static function get($id)
 	{
-		$table_name = static ::TABLE_NAME;
+		$table_name = static::TABLE_NAME;
+		$key = static::TABLE_KEY;
 
-		$row = db()->getRecord('select * from "'.$table_name.'" where id = ?',
-			$id);
+		$row = db()->getRecord('select * from "'.$table_name.'" where "'.$key.'" = ?', $id);
 		if (!$row) {
 			return null;
 		}
