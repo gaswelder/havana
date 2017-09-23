@@ -1,8 +1,12 @@
 <?php
 function tpl($name, $vars = [])
 {
+	$__name = $name;
 	$__path = $GLOBALS['__APPDIR'] . "/templates/$name.php";
 
+	if (!file_exists($__path)) {
+		throw new Exception("could not find template file '$name'");
+	}
 	$src = file_get_contents($__path);
 	preg_match_all('/\{\{(.*?)\}\}/', $src, $m);
 	foreach ($m[0] as $i => $s) {
@@ -19,6 +23,11 @@ function tpl($name, $vars = [])
 
 	extract($vars);
 	ob_start();
-	include $__path;
-	return ob_get_clean();
+	try {
+		include $__path;
+		return ob_get_clean();
+	} catch (Exception $e) {
+		ob_clean();
+		throw new Exception("error in template '$__name': ".$e->getMessage(), $e->getCode(), $e);
+	}
 }
