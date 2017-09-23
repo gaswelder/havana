@@ -4,6 +4,20 @@ class dbobject
 	const TABLE_NAME = '__OVERRIDE_THIS!';
 	const TABLE_KEY = 'id';
 
+	// Route access to "id" property to the appropriate field depending
+	// on the TABLE_KEY constant.
+	function __get($k)
+	{
+		if ($k == 'id' && static::TABLE_KEY != 'id') {
+			$k = static::TABLE_KEY;
+			if (property_exists($this, $k)) {
+				return $this->$k;
+			}
+			return null;
+		}
+		throw new Exception("unknown property: $k");
+	}
+
 	function save()
 	{
 		$data = [];
