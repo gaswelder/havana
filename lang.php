@@ -143,7 +143,7 @@ class lang
 	 */
 	private static function path($lang)
 	{
-		$path = 'lang/'.strtolower($lang);
+		$path = $GLOBALS['__APPDIR'] . '/lang/'.strtolower($lang);
 		return $path;
 	}
 }
