@@ -1,16 +1,4 @@
 <?php
-require __DIR__.'/match.php';
-require __DIR__.'/response.php';
-require __DIR__.'/request.php';
-require __DIR__.'/db/db.php';
-require __DIR__.'/db/dbobject.php';
-require __DIR__.'/tpl.php';
-require __DIR__.'/user.php';
-require __DIR__.'/func.php';
-
-set_error_handler(function ($errno, $msg, $path, $line, $context) {
-	throw new Exception("$msg at $path:$line");
-});
 
 class App
 {
