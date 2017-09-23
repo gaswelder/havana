@@ -123,6 +123,21 @@ class response
 		return $r;
 	}
 
+	static function static_file($path)
+	{
+		$type = mime::type($path);
+		if (!$type) {
+			trigger_error("Unknown MIME type for '$name'");
+			$type = 'application/octet-stream';
+		}
+
+		$size = filesize($path);
+		$f = fopen($path, 'rb');
+		$r = new response($f, $type);
+		$r->header('Content-Length: '.$size);
+		return $r;
+	}
+
 	static function download_file($path, $name = null, $type = null)
 	{
 		if ($name && !$type) {
