@@ -79,26 +79,24 @@ class App
 	public function run()
 	{
 		$GLOBALS['__APPDIR'] = $this->dir;
-		$this->serve();
+		$response = $this->serve();
+		$response->flush();
 	}
 
 	private function serve()
 	{
+		$op = strtolower($_SERVER['REQUEST_METHOD']);
+		if (!isset($this->res[$op])) {
+			return response::make(response::STATUS_METHOD_NOT_ALLOWED);
+		}
+
 		$url = parse_url($_SERVER['REQUEST_URI']);
 		$requestedPath = $url['path'];
-
-		$op = strtolower($_SERVER['REQUEST_METHOD']);
-
-		if (!isset($this->res[$op])) {
-			response::make(response::STATUS_METHOD_NOT_ALLOWED)->flush();
-			return;
-		}
 
 		foreach ($this->before as $func) {
 			$r = call_user_func($func, $requestedPath);
 			if ($r) {
-				response::make($r)->flush();
-				return;
+				return response::make($r);
 			}
 		}
 
@@ -117,8 +115,7 @@ class App
 		}
 
 		if (!$match) {
-			response::make(response::STATUS_NOTFOUND)->flush();
-			return;
+			return response::make(response::STATUS_NOTFOUND);
 		}
 
 		// If the given handler is a class, call its "run" method.
@@ -127,6 +124,6 @@ class App
 			$match = [new $match, 'run'];
 		}
 		$val = call_user_func_array($match, $match_args);
-		response::make($val)->flush();
+		return response::make($val);
 	}
 }
