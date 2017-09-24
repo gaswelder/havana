@@ -131,11 +131,44 @@ class response
 			$type = 'application/octet-stream';
 		}
 
-		$size = filesize($path);
-		$f = fopen($path, 'rb');
-		$r = new response($f, $type);
-		$r->header('Content-Length: '.$size);
+		$etag = md5_file($path);
+
+		$r = new response();
+		$r->header('Content-Length: '.filesize($path));
+		$r->header('ETag: '.$etag);
+		$r->header('Content-Type: '.$type);
+
+		if (self::cacheValid($path, $etag)) {
+			$r->status = 304;
+			return $r;
+		}
+
+		$r->content = fopen($path, 'rb');
 		return $r;
+	}
+
+	private static function cacheValid($path, $etag)
+	{
+		$sum = request::header('If-None-Match');
+		$date = request::header('If-Modified-Since');
+		if (!$sum && !$date) {
+			return false;
+		}
+
+		if ($sum) {
+			$sums = array_map('trim', explode(',', $sum));
+			if (!in_array($etag, $sums)) {
+				return false;
+			}
+		}
+
+		if ($date) {
+			$t = strtotime($date);
+			if (filemtime($path) > $t) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	static function download_file($path, $name = null, $type = null)
