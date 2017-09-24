@@ -72,7 +72,6 @@ class dbobject
 			return null;
 		}
 		$obj = self::fromRow($row);
-		$obj->id = $id;
 		return $obj;
 	}
 
