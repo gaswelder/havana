@@ -11,7 +11,7 @@ require __DIR__.'/match.php';
 require __DIR__.'/mime.php';
 require __DIR__.'/response.php';
 require __DIR__.'/request.php';
-require __DIR__.'/uploads.php';
+require __DIR__.'/upload.php';
 require __DIR__.'/db/db.php';
 require __DIR__.'/db/dbobject.php';
 require __DIR__.'/tpl.php';

@@ -101,6 +101,62 @@ class request
 	{
 		return self::domain().$_SERVER['REQUEST_URI'];
 	}
-}
 
-?>
+	static function files($input_name)
+	{
+		if (!isset($_FILES[$input_name])) {
+			return array();
+		}
+
+		$files = array();
+		if (!is_array($_FILES[$input_name]['name'])) {
+			$files[] = $_FILES[$input_name];
+		}
+		else {
+			$fields = array(
+				"type",
+				"tmp_name",
+				"error",
+				"size",
+				"name"
+			);
+			foreach ($_FILES[$input_name]['name'] as $i => $name) {
+				$input = array();
+				foreach ($fields as $f) {
+					$input[$f] = $_FILES[$input_name][$f][$i];
+				}
+				$files[] = $input;
+			}
+		}
+
+		/*
+		 * Filter out files with errors
+		 */
+		$ok = array();
+		foreach ($files as $file) {
+			/*
+			* This happens with multiple file inputs with the same
+			* name marked with '[]'.
+			*/
+			if ($file['error'] == UPLOAD_ERR_NO_FILE) {
+				continue;
+			}
+
+			if ($file['error'] || !$file['size']) {
+				$errstr = self::errstr($file['error']);
+				warning("Upload of file '$file[name]' failed ($errstr, size=$file[size])");
+				continue;
+			}
+			unset($file['error']);
+
+			$size = round($file['size']/1024, 2);
+			// h3::log("Upload: $file[name] ($size KB, $file[type])");
+
+			$ok[] = $file;
+		}
+
+		return array_map(function($file) {
+			return new upload($file);
+		}, $ok);
+	}
+}
