@@ -25,11 +25,11 @@ class dbobject
 			$data[$k] = $v;
 		}
 
-		$key = static ::TABLE_KEY;
+		$key = static::TABLE_KEY;
 		if (array_key_exists($key, $data)) {
 			$filter = [$key => $data[$key]];
 			unset($data[$key]);
-			db()->update(static ::TABLE_NAME, $data, $filter);
+			db()->update(static::TABLE_NAME, $data, $filter);
 		}
 		else {
 			$this->id = db()->insert(static ::TABLE_NAME, $data);

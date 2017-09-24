@@ -38,7 +38,7 @@ class expr
 			}
 		}
 
-		throw new Exception("Couldn't find suitable delimited for regular expression: $s");
+		throw new Exception("Couldn't find suitable delimiter for regular expression: $s");
 	}
 
 	private function read()
