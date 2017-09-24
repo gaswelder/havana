@@ -5,7 +5,7 @@ function tpl($name, $vars = [])
 	$__path = $GLOBALS['__APPDIR'] . "/templates/$name.php";
 
 	if (!file_exists($__path)) {
-		throw new Exception("could not find template file '$name'");
+		panic("could not find template file '$name'");
 	}
 	$src = file_get_contents($__path);
 	preg_match_all('/\{\{(.*?)\}\}/', $src, $m);
@@ -28,6 +28,6 @@ function tpl($name, $vars = [])
 		return ob_get_clean();
 	} catch (Exception $e) {
 		ob_clean();
-		throw new Exception("error in template '$__name': ".$e->getMessage(), $e->getCode(), $e);
+		panic("error in template '$__name': ".$e->getMessage(), $e->getCode(), $e);
 	}
 }

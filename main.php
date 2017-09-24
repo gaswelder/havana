@@ -1,7 +1,11 @@
 <?php
 
+function panic($message) {
+	throw new Exception($message);
+}
+
 set_error_handler(function ($errno, $msg, $path, $line, $context) {
-	throw new Exception("$msg at $path:$line");
+	panic("$msg at $path:$line");
 });
 
 require __DIR__.'/app.php';

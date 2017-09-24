@@ -32,12 +32,12 @@ class upload
 		}
 
 		if (!is_dir($dir) && !@mkdir($dir, 0777, true)) {
-			throw new Exception("could not create upload directory '$dir'");
+			panic("could not create upload directory '$dir'");
 		}
-        
+
         $path = $dir . $this->newname();
 		if (!move_uploaded_file($this->info['tmp_name'], $path)) {
-			throw new Exception("could not move uploaded file $file[tmp_name]");
+			panic("could not move uploaded file $file[tmp_name]");
 		}
 
 
