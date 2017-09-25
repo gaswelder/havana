@@ -1,4 +1,32 @@
 <?php
+
+class url
+{
+	private $data;
+	private $original;
+
+	function __construct($url)
+	{
+		$this->original = $url;
+		$this->data = parse_url($url);
+
+		$domain = "$this->scheme://$this->host";
+		if ($this->port) {
+			$domain .= ":$this->port";
+		}
+		$this->data['domain'] = $domain;
+	}
+
+	function __toString()
+	{
+		return $this->original;
+	}
+
+	function __get($k) {
+		return $this->data[$k] ?? null;
+	}
+}
+
 class request
 {
 	private static $init = false;
@@ -86,7 +114,7 @@ class request
 		}
 	}
 
-	static function domain()
+	static function url()
 	{
 		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
 			$protocol = "https";
@@ -94,12 +122,8 @@ class request
 		else {
 			$protocol = "http";
 		}
-		return $protocol.'://'.$_SERVER['HTTP_HOST'];
-	}
-
-	static function url()
-	{
-		return self::domain().$_SERVER['REQUEST_URI'];
+		$domain = $protocol.'://'.$_SERVER['HTTP_HOST'];
+		return new url($domain.$_SERVER['REQUEST_URI']);
 	}
 
 	static function files($input_name)
