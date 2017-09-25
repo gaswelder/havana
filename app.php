@@ -9,11 +9,24 @@ class App
 
 	private $dir;
 
+	private $func = null;
+
 	function __construct($dir)
 	{
+		$this->func = function() {
+			return $this->serve();
+		};
 		$this->dir = $dir;
 		$this->parseEnv();
 		$this->addLoader();
+	}
+
+	function middleware($func)
+	{
+		$runNext = $this->func;
+		$this->func = function() use ($runNext, $func) {
+			return response::make($func($runNext));
+		};
 	}
 
 	function setPrefix($pref)
@@ -79,7 +92,8 @@ class App
 	public function run()
 	{
 		$GLOBALS['__APPDIR'] = $this->dir;
-		$response = $this->serve();
+		$next = $this->func;
+		$response = $next();
 		$response->flush();
 	}
 
