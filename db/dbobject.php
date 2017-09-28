@@ -32,10 +32,10 @@ class dbobject
 			db()->update(static::TABLE_NAME, $data, $filter);
 		}
 		else {
-			$this->id = db()->insert(static ::TABLE_NAME, $data);
+			$this->$key = db()->insert(static ::TABLE_NAME, $data);
 		}
 
-		return $this->id;
+		return $this->$key;
 	}
 
 	static function fromRows($rows)
