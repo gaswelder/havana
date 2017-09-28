@@ -25,6 +25,8 @@ class upload
 		return $this->info['name'];
 	}
 
+	// Saves the uploaded file to the given directory,
+	// generating a filename automatically.
 	function saveToDir($dir)
 	{
 		if (substr($dir, -1) != '/') {
@@ -42,6 +44,21 @@ class upload
 
 
 		// h3::log("Upload: save $file[name] to $path");
+		return $path;
+	}
+
+	// Saves the uploaded file to the given path.
+	function saveTo($path)
+	{
+		$dir = dirname($path);
+		if (!file_exists($dir)) {
+			mkdir($dir, 0777, true);
+		}
+
+		if (!move_uploaded_file($this->info['tmp_name'], $path)) {
+			panic("could not move uploaded file $file[tmp_name]");
+		}
+
 		return $path;
 	}
 
