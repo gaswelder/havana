@@ -49,6 +49,7 @@ class dbobject
 
 	static function fromRow($row)
 	{
+		if (!$row) return null;
 		$l = new static ();
 		foreach ($row as $k => $v) {
 			$l->$k = $v;
