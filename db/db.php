@@ -1,65 +1,32 @@
 <?php
+require __DIR__.'/dbclient_mysql.php';
+require __DIR__.'/dbclient_sqllite.php';
+
 class dbclient
 {
+	static function make($url)
+	{
+		$u = parse_url($url);
+		if (!isset($u['scheme'])) {
+			throw new Exception("Invalid URL: $url");
+		}
+
+		switch ($u['scheme']) {
+			case 'mysql': return new dbclient_mysql($url);
+			case 'sqlite': return new dbclient_sqlite($url);
+			default: throw new Exception("Unknown database type: $u[scheme]");
+		}
+	}
+
 	/*
 	 * The connection object
 	 */
-	private $db = null;
+	protected $db = null;
 
 	/*
 	 * Number of rows affected by the last query
 	 */
 	private $affected_rows = 0;
-
-	function __construct($url)
-	{
-		$u = parse_url($url);
-		if (!isset($u['scheme'])) {
-			throw new Exception("Invalid URL");
-		}
-
-		if (!isset($u['user'])) {
-			$u['user'] = null;
-		}
-		if (!isset($u['pass'])) {
-			$u['pass'] = null;
-		}
-
-		$dbname = substr($u['path'], 1);
-		switch ($u['scheme']) {
-		case 'mysql':
-			$spec = "mysql:dbname=$dbname;host=$u[host]";
-			break;
-		case 'sqlite':
-			$spec = 'sqlite:'.realpath($dbname);
-			break;
-		default:
-			throw new Exception("Unknown database: $u[scheme]");
-		}
-
-		$this->db = new PDO($spec, $u['user'], $u['pass']);
-		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-		/*
-		 * If we work with mysql and mysqlnd is used, get it to
-		 * preserve value types.
-		 */
-		if ($u['scheme'] == 'mysql') {
-			$dr = $this->db->getAttribute(PDO::ATTR_CLIENT_VERSION);
-			if (strpos($dr, 'mysqlnd') !== false) {
-				$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-			}
-			/*
-			 * The `charset` parameter in DSN doesn't work
-			 * reliably, thus this query.
-			 */
-			$this->db->exec("SET NAMES UTF8");
-			/*
-			 * Use standard quoting, not mysql-specific.
-			 */
-			$this->db->exec("SET SESSION sql_mode = 'ANSI'");
-		}
-	}
 
 	/*
 	 * Executes a query, returns true or false
@@ -142,7 +109,7 @@ class dbclient
 	/**
 	 * Runs the given query with the given arguments.
 	 */
-	private function run($args)
+	protected function run($args)
 	{
 		$this->affected_rows = 0;
 		$tpl = array_shift($args);

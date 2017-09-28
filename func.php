@@ -8,7 +8,7 @@ function db()
 		if (!$url) {
 			throw new Exception("Missing DATABASE env var");
 		}
-		$client = new dbclient($url);
+		$client = dbclient::make($url);
 	}
 	return $client;
 }
