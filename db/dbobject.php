@@ -151,8 +151,10 @@ class dbobject
 		return $obj;
 	}
 
-	static function find($filter)
+	static function find($filter, $order = null)
 	{
+		$keys = static::fields();
+
 		$filter = array_merge(static::getBaseFilter(), $filter);
 		$cond = [];
 		$values = [];
@@ -168,6 +170,9 @@ class dbobject
 		$q = "SELECT $keysList FROM ".static::TABLE_NAME;
 		if (!empty($cond)) {
 			$q .= ' WHERE '.implode(' AND ', $cond);
+		}
+		if ($order) {
+			$q .= " order by $order";
 		}
 		$rows = call_user_func_array([db(), 'getRecords'], array_merge([$q], $values));
 		return static::fromRows($rows);
