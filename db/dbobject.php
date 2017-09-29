@@ -24,6 +24,7 @@ class dbobject
 		foreach ($this as $k => $v) {
 			$data[$k] = $v;
 		}
+		$data = $this->formatData($data);
 
 		$key = static::TABLE_KEY;
 		if (array_key_exists($key, $data)) {
@@ -51,10 +52,23 @@ class dbobject
 	{
 		if (!$row) return null;
 		$l = new static ();
-		foreach ($row as $k => $v) {
-			$l->$k = $v;
-		}
+		$l->assign($row);
 		return $l;
+	}
+
+	protected function formatData($data) {
+		return $data;
+	}
+
+	protected function parseData($data) {
+		return $data;
+	}
+
+	private function assign($data) {
+		$data = $this->parseData($data);
+		foreach ($data as $k => $v) {
+			$this->$k = $v;
+		}
 	}
 
 	/**
