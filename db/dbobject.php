@@ -4,30 +4,56 @@ class dbobject
 	const TABLE_NAME = '__OVERRIDE_THIS!';
 	const TABLE_KEY = 'id';
 
+	// Returns list of column names for this object
+	static function fields()
+	{
+		$keys = array_keys(get_class_vars(static::class));
+		$id = static::TABLE_KEY;
+		if (!in_array($id, $keys)) {
+			array_unshift($keys, $id);
+		}
+		return $keys;
+	}
+
 	// Route access to "id" property to the appropriate field depending
 	// on the TABLE_KEY constant.
 	function __get($k)
 	{
-		if ($k == 'id' && static::TABLE_KEY != 'id') {
+		if ($k == 'id') {
 			$k = static::TABLE_KEY;
+		}
+		if ($k == static::TABLE_KEY) {
 			if (property_exists($this, $k)) {
 				return $this->$k;
 			}
 			return null;
 		}
-		throw new Exception("unknown property: $k");
+		throw new Exception("unknown property: $k in class '".static::class."'");
+	}
+
+	function __set($k, $v)
+	{
+		$key = static::TABLE_KEY;
+		if ($k == 'id') {
+			$k = $key;
+		}
+		if ($k == $key) {
+			$this->$key = $v;
+			return;
+		}
+		throw new Exception("unknown property: $k in class '".static::class."'");
 	}
 
 	function save()
 	{
 		$data = [];
-		foreach ($this as $k => $v) {
-			$data[$k] = $v;
+		foreach (static::fields() as $key) {
+			$data[$key] = $this->$key;
 		}
 		$data = $this->formatData($data);
 
 		$key = static::TABLE_KEY;
-		if (array_key_exists($key, $data)) {
+		if (array_key_exists($key, $data) && $data[$key]) {
 			$filter = [$key => $data[$key]];
 			unset($data[$key]);
 			db()->update(static::TABLE_NAME, $data, $filter);
@@ -66,8 +92,10 @@ class dbobject
 
 	private function assign($data) {
 		$data = $this->parseData($data);
-		foreach ($data as $k => $v) {
-			$this->$k = $v;
+		foreach (static::fields() as $k) {
+			if (isset($data[$k])) {
+				$this->$k = $data[$k];
+			}
 		}
 	}
 
@@ -136,7 +164,8 @@ class dbobject
 			$cond[] = '"'.$field.'" = ?';
 			$values[] = $value;
 		}
-		$q = 'SELECT * FROM '.static::TABLE_NAME;
+		$keysList = implode(', ', $keys);
+		$q = "SELECT $keysList FROM ".static::TABLE_NAME;
 		if (!empty($cond)) {
 			$q .= ' WHERE '.implode(' AND ', $cond);
 		}
