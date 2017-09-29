@@ -178,6 +178,10 @@ class dbobject
 		return static::fromRows($rows);
 	}
 
+	static function findOne($filter, $order = null) {
+		return static::find($filter, $order)[0] ?? null;
+	}
+
 	protected static function getBaseFilter()
 	{
 		return [];
