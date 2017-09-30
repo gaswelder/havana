@@ -166,7 +166,7 @@ class dbobject
 			$cond[] = '"'.$field.'" = ?';
 			$values[] = $value;
 		}
-		$keysList = implode(', ', $keys);
+		$keysList = '"' . implode('", "', $keys) . '"';
 		$q = "SELECT $keysList FROM ".static::TABLE_NAME;
 		if (!empty($cond)) {
 			$q .= ' WHERE '.implode(' AND ', $cond);
