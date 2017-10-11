@@ -1,5 +1,7 @@
 <?php
 
+namespace havana;
+
 class App
 {
 	private $res = ['get' => [], 'post' => []];
@@ -117,7 +119,7 @@ class App
 		$match_args = [];
 		$match = null;
 		foreach ($this->res[$op] as $path => $func) {
-			$args = match_url($requestedPath, $path);
+			$args = \havana_internal\match_url($requestedPath, $path);
 			if ($args === false) {
 				continue;
 			}

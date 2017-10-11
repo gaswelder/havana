@@ -1,5 +1,7 @@
 <?php
 
+namespace havana;
+
 /*
  * Session interface for storing authentication results and other data.
  */
@@ -232,5 +234,3 @@ class user
 		}
 	}
 }
-
-?>

@@ -1,5 +1,7 @@
 <?php
 
+namespace havana;
+
 class upload
 {
 	private $info;

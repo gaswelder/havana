@@ -1,4 +1,6 @@
 <?php
+namespace havana_internal;
+
 class expr
 {
 	private $s;
@@ -91,4 +93,3 @@ function match_url($uri, $pat)
 
 	return $args;
 }
-

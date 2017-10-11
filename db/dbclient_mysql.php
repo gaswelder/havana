@@ -1,4 +1,7 @@
 <?php
+namespace havana;
+
+use PDO;
 
 class dbclient_mysql extends dbclient
 {

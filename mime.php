@@ -1,4 +1,6 @@
 <?php
+namespace havana_internal;
+
 class mime
 {
 	private static $types = array(

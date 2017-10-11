@@ -1,4 +1,7 @@
 <?php
+
+namespace havana;
+
 class response
 {
 	public $content;

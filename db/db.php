@@ -1,6 +1,10 @@
 <?php
+namespace havana;
+
 require __DIR__.'/dbclient_mysql.php';
 require __DIR__.'/dbclient_sqllite.php';
+
+use PDO;
 
 class dbclient
 {

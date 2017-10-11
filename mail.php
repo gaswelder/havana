@@ -1,5 +1,7 @@
 <?php
 
+namespace havana;
+
 class mail
 {
 	// Map of mail headers. Most common are "To", "From", "Subject",

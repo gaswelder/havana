@@ -1,4 +1,6 @@
 <?php
+use havana\dbclient;
+
 function db()
 {
 	static $client = null;

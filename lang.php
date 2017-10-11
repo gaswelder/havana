@@ -1,4 +1,7 @@
 <?php
+
+namespace havana;
+
 /*
 The `lang` extension is a simpler alternative to `gettext`. It may be chosen for
 smaller sites where setting up `gettext` wouldn't give much advantage or on
