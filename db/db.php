@@ -94,23 +94,6 @@ class dbclient
 		return $row[0];
 	}
 
-	// Runs the given query with the given arguments.
-	// The arguments list is given as array.
-	// Returns the prepared statement after its execution.
-	protected function run($query, $args)
-	{
-		$this->affected_rows = 0;
-		$st = $this->db->prepare($query);
-		$st->execute($args);
-		$this->affected_rows = $st->rowCount();
-		return $st;
-	}
-
-	function affectedRows()
-	{
-		return $this->affected_rows;
-	}
-
 	// Inserts a row given as a dict into the specified table.
 	function insert($table, $row)
 	{
@@ -130,34 +113,21 @@ class dbclient
 		return $this->affectedRows();
 	}
 
-	/**
-	 * Begins a new transaction.
-	 *
-	 * @throws PDOException
-	 */
-	function begin()
+	// Runs the given query with the given arguments.
+	// The arguments list is given as array.
+	// Returns the prepared statement after its execution.
+	protected function run($query, $args)
 	{
-		$this->db->beginTransaction();
+		$this->affected_rows = 0;
+		$st = $this->db->prepare($query);
+		$st->execute($args);
+		$this->affected_rows = $st->rowCount();
+		return $st;
 	}
 
-	/**
-	 * Ends the current transation.
-	 *
-	 * @throws PDOException
-	 */
-	function end()
+	function affectedRows()
 	{
-		$this->db->commit();
-	}
-
-	/**
-	 * Cancels the current transaction.
-	 *
-	 * @throws PDOException
-	 */
-	function cancel()
-	{
-		$this->db->rollback();
+		return $this->affected_rows;
 	}
 }
 
