@@ -111,52 +111,22 @@ class dbclient
 		return $this->affected_rows;
 	}
 
-	function insert($table, $record)
+	// Inserts a row given as a dict into the specified table.
+	function insert($table, $row)
 	{
-		$header = $this->header_string($record);
-		$tuple = $this->tuple_string($record);
-
-		$st = $this->db->prepare("INSERT INTO `$table` $header VALUES $tuple");
-		$st->execute(array_values($record));
+		list ($query, $args) = sqlWriter::insert($table, $row);
+		$st = $this->run($query, $args);
+		$st->closeCursor();
 		return $this->db->lastInsertId();
 	}
 
-	private function header_string($record)
-	{
-		$cols = array_keys($record);
-		return '(`'.implode('`, `', $cols).'`)';
-	}
-
-	private function tuple_string($record)
-	{
-		$n = count($record);
-		$placeholders = array_fill(0, $n, '?');
-		return '('.implode(', ', $placeholders).')';
-	}
-
+	// Updates the specified table setting values from the 'values' dict
+	// where rows match the given filter.
 	function update($table, $values, $filter)
 	{
-		$q = 'UPDATE "'.$table.'" SET ';
-
-		$args = [];
-
-		$set = [];
-		foreach ($values as $field => $value) {
-			$set[] = '"'.$field.'" = ?';
-			$args[] = $value;
-		}
-		$q .= implode(', ', $set);
-
-		$where = [];
-		foreach ($filter as $field => $value) {
-			$where[] = '"'.$field.'" = ?';
-			$args[] = $value;
-		}
-
-		$q .= ' WHERE '.implode(' AND ', $where);
-
-		$st = $this->db->prepare($q);
-		$r = $st->execute($args);
+		list ($query, $args) = sqlWriter::update($table, $values, $filter);
+		$st = $this->run($query, $args);
+		$st->closeCursor();
 		return $this->affectedRows();
 	}
 
@@ -188,5 +158,49 @@ class dbclient
 	function cancel()
 	{
 		$this->db->rollback();
+	}
+}
+
+class sqlWriter
+{
+	static function insert($table, $row)
+	{
+		$cols = array_keys($row);
+		$header =  '("'.implode('", "', $cols).'")';
+
+		$placeholders = array_fill(0, count($row), '?');
+		$tuple = '('.implode(', ', $placeholders).')';
+
+		$q = "INSERT INTO \"$table\" $header VALUES $tuple";
+		$args = array_values($row);
+		return [$q, $args];
+	}
+
+	static function update($table, $values, $filter)
+	{
+		$q = 'UPDATE "'.$table.'" SET ';
+
+		$args = [];
+
+		$set = [];
+		foreach ($values as $field => $value) {
+			$set[] = '"'.$field.'" = ?';
+			$args[] = $value;
+		}
+		$q .= implode(', ', $set);
+
+		$where = [];
+		foreach ($filter as $field => $value) {
+			$where[] = '"'.$field.'" = ?';
+			$args[] = $value;
+		}
+
+		$q .= ' WHERE '.implode(' AND ', $where);
+
+		return [$q, $args];
+
+		$st = $this->db->prepare($q);
+		$r = $st->execute($args);
+		return $this->affectedRows();
 	}
 }
