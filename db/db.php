@@ -35,9 +35,9 @@ class dbclient
 	/*
 	 * Executes a query, returns true or false
 	 */
-	function exec($query, $__args__ = null)
+	function exec($query, ...$args)
 	{
-		$st = $this->run(func_get_args());
+		$st = $this->run($query, $args);
 		if (!$st) {
 			return false;
 		}
@@ -46,9 +46,9 @@ class dbclient
 	}
 
 	// Queries and returns multiple rows.
-	function getRows($query, $__args__ = null)
+	function getRows($query, ...$args)
 	{
-		$st = $this->run(func_get_args());
+		$st = $this->run($query, $args);
 		$rows = $st->fetchAll(PDO::FETCH_ASSOC);
 		$st->closeCursor();
 		return $rows;
@@ -56,9 +56,9 @@ class dbclient
 
 	// Queries and returns one row from the result.
 	// Returns null if there are no rows in the result.
-	function getRow($query, $__args__ = null)
+	function getRow($query, ...$args)
 	{
-		$st = $this->run(func_get_args());
+		$st = $this->run($query, $args);
 		$rows = $st->fetchAll(PDO::FETCH_ASSOC);
 		$st->closeCursor();
 		if (empty($rows)) {
@@ -68,9 +68,9 @@ class dbclient
 	}
 
 	// Queries and returns one column as an array
-	function getValues($query, $args = null)
+	function getValues($query, ...$args)
 	{
-		$st = $this->run(func_get_args());
+		$st = $this->run($query, $args);
 		$values = [];
 		while (1) {
 			$row = $st->fetch(PDO::FETCH_NUM);
@@ -85,23 +85,22 @@ class dbclient
 
 	// Queries and returns a single value.
 	// Returns null if there are now rows in the result.
-	function getValue($query, $__args__ = null)
+	function getValue($query, ...$args)
 	{
-		$st = $this->run(func_get_args());
+		$st = $this->run($query, $args);
 		$row = $st->fetch(PDO::FETCH_NUM);
 		$st->closeCursor();
 		if (!$row) return null;
 		return $row[0];
 	}
 
-	/**
-	 * Runs the given query with the given arguments.
-	 */
-	protected function run($args)
+	// Runs the given query with the given arguments.
+	// The arguments list is given as array.
+	// Returns the prepared statement after its execution.
+	protected function run($query, $args)
 	{
 		$this->affected_rows = 0;
-		$tpl = array_shift($args);
-		$st = $this->db->prepare($tpl);
+		$st = $this->db->prepare($query);
 		$st->execute($args);
 		$this->affected_rows = $st->rowCount();
 		return $st;
