@@ -178,7 +178,7 @@ class dbobject
 		if ($order) {
 			$q .= " order by $order";
 		}
-		$rows = call_user_func_array([db(), 'getRecords'], array_merge([$q], $values));
+		$rows = call_user_func_array([db(), 'getRows'], array_merge([$q], $values));
 		return static::fromRows($rows);
 	}
 

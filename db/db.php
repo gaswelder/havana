@@ -45,10 +45,8 @@ class dbclient
 		return true;
 	}
 
-	/*
-	 * Queries and returns multiple rows
-	 */
-	function getRecords($query, $__args__ = null)
+	// Queries and returns multiple rows.
+	function getRows($query, $__args__ = null)
 	{
 		$st = $this->run(func_get_args());
 		$rows = $st->fetchAll(PDO::FETCH_ASSOC);
@@ -56,15 +54,9 @@ class dbclient
 		return $rows;
 	}
 
-	/**
-	 * Queries and returns one row from the result.
-	 * Returns null if there are no rows in the result.
-	 *
-	 * @param string $query Query template
-	 * @param mixed $__args__ Query parameters
-	 * @return array|null
-	 */
-	function getRecord($query, $__args__ = null)
+	// Queries and returns one row from the result.
+	// Returns null if there are no rows in the result.
+	function getRow($query, $__args__ = null)
 	{
 		$st = $this->run(func_get_args());
 		$rows = $st->fetchAll(PDO::FETCH_ASSOC);
@@ -75,9 +67,7 @@ class dbclient
 		return $rows[0];
 	}
 
-	/*
-	 * Queries and returns one column as an array
-	 */
+	// Queries and returns one column as an array
 	function getValues($query, $args = null)
 	{
 		$st = $this->run(func_get_args());
@@ -93,14 +83,8 @@ class dbclient
 		return $values;
 	}
 
-	/**
-	 * Queries and returns the first column from the first row.
-	 * Returns null if there are now rows in the result.
-	 *
-	 * @param string $query Query template
-	 * @param mixed $__args__ Query parameters
-	 * @return mixed|null
-	 */
+	// Queries and returns a single value.
+	// Returns null if there are now rows in the result.
 	function getValue($query, $__args__ = null)
 	{
 		$st = $this->run(func_get_args());
