@@ -10,11 +10,11 @@ function tpl($name, $vars = [])
 	$src = file_get_contents($__path);
 	preg_match_all('/\{\{(.*?)\}\}/', $src, $m);
 	foreach ($m[0] as $i => $s) {
-		$src = str_replace($s, '<?= htmlspecialchars('.$m[1][$i].') ?>',
-			$src);
+		$src = str_replace($s, '<?= htmlspecialchars('.$m[1][$i].') ?>', $src);
 	}
 
-	$__path = tempnam(sys_get_temp_dir(), 'tpl');
+	//$__path = tempnam(sys_get_temp_dir(), 'tpl');
+	$__path = sys_get_temp_dir().'/'.basename($name).'-'.md5($src);
 	file_put_contents($__path, $src);
 	unset($src);
 	unset($name);
