@@ -1,0 +1,33 @@
+<?php
+
+namespace havana_internal;
+
+class user_role
+{
+    const prefix = 'userdata';
+
+	private $session;
+	private $name;
+
+	function __construct($name)
+	{
+        $this->session = new session(self::prefix.'/'.$name);
+        $this->session->set('.', $name);
+	}
+
+	function get($k, $default = null) {
+		return $this->session->get($k, $default);
+	}
+
+	function set($k, $v) {
+		$this->session->set($k, $v);
+	}
+
+	function unset($k) {
+		$this->session->unset($k);
+    }
+    
+    function clear() {
+		$this->session->clear();
+	}
+}
