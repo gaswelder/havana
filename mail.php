@@ -4,6 +4,14 @@ namespace havana;
 
 class mail
 {
+	static function sendText($to, $text, $subject)
+	{
+		$m = new mail;
+		$m->set_subject($subject);
+		$m->set_text($text);
+		$m->send($to);
+	}
+
 	// Map of mail headers. Most common are "To", "From", "Subject",
 	// "BCC".
 	private $headers = array();
@@ -193,5 +201,3 @@ class mail
 		return mail($to, $subj, $body, $headers);
 	}
 }
-
-?>
