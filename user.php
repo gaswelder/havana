@@ -36,10 +36,6 @@ class user
 
 	static function addRole($name, $id = null)
 	{
-		if (!self::type_valid($name)) {
-			trigger_error("Invalid type name");
-			return false;
-		}
 		self::init();
 		$role = self::$roles[$name] ?? null;
 		if ($role) {
@@ -50,37 +46,17 @@ class user
 
 	static function getRole($name)
 	{
-		if (!self::type_valid($name)) {
-			trigger_error("Invalid type name");
-			return false;
-		}
 		self::init();
 		return self::$roles[$name] ?? null;
 	}
 
 	static function removeRole($name)
 	{
-		if (!self::type_valid($name)) {
-			trigger_error("Invalid type name");
-			return false;
-		}
 		self::init();
 		$role = self::$roles[$name] ?? null;
 		if ($role) {
 			$role->clear();
 		}
 		unset(self::$roles[$name]);
-	}
-
-	/*
-	 * Tells whether the type name is valid.
-	 */
-	private static function type_valid($type)
-	{
-		/*
-		 * Type names must be non-empty strings without the slash
-		 * character since we use it to build session keys.
-		 */
-		return (is_string($type) && $type != '' && strpos($type, '/') === false);
 	}
 }

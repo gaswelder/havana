@@ -11,6 +11,13 @@ class user_role
 
 	function __construct($name)
 	{
+        /*
+		 * Type names must be non-empty strings without the slash
+		 * character since we use it to build session keys.
+		 */
+        if (!is_string($name) || $name == '' || strpos($name, '/') !== false) {
+            throw new \Exception("invalid role name: '$name'");
+        }
         $this->session = new session(self::prefix.'/'.$name);
         $this->session->set('.', $name);
 	}
