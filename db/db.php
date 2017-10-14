@@ -3,6 +3,7 @@ namespace havana;
 
 require __DIR__.'/dbclient_mysql.php';
 require __DIR__.'/dbclient_sqllite.php';
+require __DIR__.'/dbclient_dummy.php';
 
 use PDO;
 use Exception;
@@ -19,6 +20,7 @@ class dbclient
 		switch ($u['scheme']) {
 			case 'mysql': return new dbclient_mysql($url);
 			case 'sqlite': return new dbclient_sqlite($url);
+			case 'dummy': return new dbclient_dummy($url);
 			default: throw new Exception("Unknown database type: $u[scheme]");
 		}
 	}

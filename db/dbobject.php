@@ -144,7 +144,7 @@ class dbobject
 			$cond[] = "$field = ?";
 			$values[] = $value;
 		}
-		$q = 'SELECT id FROM '.static::TABLE_NAME.' WHERE '.implode(' AND ', $cond);
+		$q = 'SELECT id FROM "'.static::TABLE_NAME.'" WHERE '.implode(' AND ', $cond);
 		$id = call_user_func_array([db(), 'getValue'], array_merge([$q], $values));
 		if ($id) return static::get($id);
 		$obj = new static();
@@ -171,7 +171,7 @@ class dbobject
 			$values[] = $value;
 		}
 		$keysList = '"' . implode('", "', $keys) . '"';
-		$q = "SELECT $keysList FROM ".static::TABLE_NAME;
+		$q = "SELECT $keysList FROM \"".static::TABLE_NAME.'"';
 		if (!empty($cond)) {
 			$q .= ' WHERE '.implode(' AND ', $cond);
 		}
