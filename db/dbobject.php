@@ -8,17 +8,6 @@ class dbobject
 	const TABLE_NAME = '__OVERRIDE_THIS!';
 	const TABLE_KEY = 'id';
 
-	// Returns list of column names for this object
-	static function fields()
-	{
-		$keys = array_keys(get_class_vars(static::class));
-		$id = static::TABLE_KEY;
-		if (!in_array($id, $keys)) {
-			array_unshift($keys, $id);
-		}
-		return $keys;
-	}
-
 	// Route access to "id" property to the appropriate field depending
 	// on the TABLE_KEY constant.
 	function __get($k)
@@ -69,23 +58,6 @@ class dbobject
 		return $this->$key;
 	}
 
-	static function fromRows($rows)
-	{
-		$list = [];
-		foreach ($rows as $row) {
-			$list[] = self::fromRow($row);
-		}
-		return $list;
-	}
-
-	static function fromRow($row)
-	{
-		if (!$row) return null;
-		$l = new static ();
-		$l->assign($row);
-		return $l;
-	}
-
 	protected function formatData($data) {
 		return $data;
 	}
@@ -101,6 +73,23 @@ class dbobject
 				$this->$k = $data[$k];
 			}
 		}
+	}
+
+	static function fromRows($rows)
+	{
+		$list = [];
+		foreach ($rows as $row) {
+			$list[] = self::fromRow($row);
+		}
+		return $list;
+	}
+
+	static function fromRow($row)
+	{
+		if (!$row) return null;
+		$l = new static ();
+		$l->assign($row);
+		return $l;
 	}
 
 	/**
@@ -170,5 +159,16 @@ class dbobject
 	protected static function getBaseFilter()
 	{
 		return [];
+	}
+
+	// Returns list of column names for this object
+	private static function fields()
+	{
+		$keys = array_keys(get_class_vars(static::class));
+		$id = static::TABLE_KEY;
+		if (!in_array($id, $keys)) {
+			array_unshift($keys, $id);
+		}
+		return $keys;
 	}
 }
