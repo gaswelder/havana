@@ -158,27 +158,8 @@ class dbobject
 	static function find($filter, $order = null)
 	{
 		$keys = static::fields();
-
 		$filter = array_merge(static::getBaseFilter(), $filter);
-		$cond = [];
-		$values = [];
-		foreach ($filter as $field => $value) {
-			if ($value === null) {
-				$cond[] = '"'.$field.'" IS NULL';
-				continue;
-			}
-			$cond[] = '"'.$field.'" = ?';
-			$values[] = $value;
-		}
-		$keysList = '"' . implode('", "', $keys) . '"';
-		$q = "SELECT $keysList FROM \"".static::TABLE_NAME.'"';
-		if (!empty($cond)) {
-			$q .= ' WHERE '.implode(' AND ', $cond);
-		}
-		if ($order) {
-			$q .= " order by $order";
-		}
-		$rows = call_user_func_array([db(), 'getRows'], array_merge([$q], $values));
+		$rows = db()->select(static::TABLE_NAME, $keys, $filter, $order);
 		return static::fromRows($rows);
 	}
 

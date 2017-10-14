@@ -116,6 +116,15 @@ class dbclient
 		return $this->affectedRows();
 	}
 
+	// Composes a select query from the given arguments
+	// and returns results from getRows call with that query.
+	function select($table, $fields, $filter, $order)
+	{
+		list ($query, $args) = sqlWriter::select($table, $fields, $filter, $order);
+		$rows = call_user_func_array([$this, 'getRows'], array_merge([$query], $args));
+		return $rows;
+	}
+
 	// Runs the given query with the given arguments.
 	// The arguments list is given as array.
 	// Returns the prepared statement after its execution.
@@ -175,5 +184,29 @@ class sqlWriter
 		$st = $this->db->prepare($q);
 		$r = $st->execute($args);
 		return $this->affectedRows();
+	}
+
+	static function select($table, $fields, $filter, $order)
+	{
+		$cond = [];
+		$values = [];
+		foreach ($filter as $field => $value) {
+			if ($value === null) {
+				$cond[] = '"'.$field.'" IS NULL';
+				continue;
+			}
+			$cond[] = '"'.$field.'" = ?';
+			$values[] = $value;
+		}
+		$keysList = '"' . implode('", "', $fields) . '"';
+
+		$q = "SELECT $keysList FROM \"$table\"";
+		if (!empty($cond)) {
+			$q .= ' WHERE '.implode(' AND ', $cond);
+		}
+		if ($order) {
+			$q .= " ORDER BY $order";
+		}
+		return [$q, $values];
 	}
 }
