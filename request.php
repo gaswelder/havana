@@ -27,6 +27,11 @@ class url
 	function __get($k) {
 		return $this->data[$k] ?? null;
 	}
+
+	function isUnder($prefix) {
+		$path = $this->path;
+		return $path == $prefix || strpos($path, $prefix.'/') === 0;
+	}
 }
 
 class request
