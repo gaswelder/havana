@@ -3,6 +3,7 @@
 require __DIR__.'/main.php';
 
 use havana\dbobject;
+use havana\response;
 use PHPUnit\Framework\TestCase;
 
 putenv('DATABASE=dummy://dfc/query');
@@ -45,5 +46,11 @@ class MainTest extends TestCase
 		dfc::expect('SELECT "id", "name", "date" FROM "foo" WHERE "id" = ?', [42], [['id' => 42, 'name' => 'foo', 'date' => 0]]);
 		$obj = foo::get(42);
 		$this->assertTrue($obj != null);
+	}
+
+	function testResponse()
+	{
+		$response = response::staticFile(__FILE__);
+		$this->assertTrue($response != null);
 	}
 }

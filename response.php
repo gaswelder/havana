@@ -2,6 +2,8 @@
 
 namespace havana;
 
+use havana_internal\mime;
+
 class response
 {
 	public $content;
@@ -126,11 +128,11 @@ class response
 		return $r;
 	}
 
-	static function static_file($path)
+	// Returns response that serves static file from the given filesystem path.
+	static function staticFile($path)
 	{
 		$type = mime::type($path);
 		if (!$type) {
-			trigger_error("Unknown MIME type for '$name'");
 			$type = 'application/octet-stream';
 		}
 
