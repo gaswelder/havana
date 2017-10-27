@@ -8,9 +8,10 @@ class response
 {
 	public $content;
 	public $type;
-	public $status = 200;
+	public $status;
 	private $headers = [];
 
+	const STATUS_OK = 200;
 	const STATUS_BADREQ = 400;
 	const STATUS_FORBIDDEN = 403;
 	const STATUS_NOTFOUND = 404;
@@ -36,13 +37,14 @@ class response
 		'503' => 'Service Unavailable'
 	);
 
-	function __construct($content = null, $type = null)
+	function __construct($code = 200, $content = null, $type = null)
 	{
 		if (!$type) {
 			$type = 'text/html; charset=utf-8';
 		}
 		$this->type = $type;
 		$this->content = $content;
+		$this->status = $code;
 	}
 
 	function header($s)
@@ -91,13 +93,12 @@ class response
 	static function json($data)
 	{
 		$str = json_encode($data);
-		return new response($str, 'application/json; charset=utf-8');
+		return new response(200, $str, 'application/json; charset=utf-8');
 	}
 
 	static function redirect($url, $code = 302)
 	{
-		$r = new response();
-		$r->status = $code;
+		$r = new response($code);
 		$r->header('Location: '.$url);
 		return $r;
 	}
@@ -112,7 +113,7 @@ class response
 			}
 		}
 
-		$r = new response($content, $type);
+		$r = new response(200, $content, $type);
 
 		$s = 'Content-Disposition: attachment';
 		if ($name) {
@@ -187,7 +188,7 @@ class response
 		}
 
 		$f = fopen($path, 'rb');
-		$r = new response($f, $type);
+		$r = new response(200, $f, $type);
 		$s = 'Content-Disposition: attachment';
 		if ($name) {
 			$s .= ';filename="'.$name.'"';
@@ -213,10 +214,10 @@ class response
 			return $r;
 		}
 		if (is_string($val)) {
-			return new response($val);
+			return new response(200, $val);
 		}
 		if ($val === null) {
-			return new response(null);
+			return new response(200, null);
 		}
 
 		trigger_error("Unknown response: ".gettype($val));
