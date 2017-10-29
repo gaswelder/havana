@@ -40,6 +40,9 @@ class dbclient
 	 */
 	function exec($query, ...$args)
 	{
+		if (empty($args)) {
+			return $this->db->exec($query);
+		}
 		$st = $this->run($query, $args);
 		if (!$st) {
 			return false;
