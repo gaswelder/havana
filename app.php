@@ -5,9 +5,6 @@ namespace havana;
 class App
 {
 	private $res = ['get' => [], 'post' => []];
-	private $prefix = '';
-
-	private $before = [];
 
 	private $dir;
 
@@ -29,11 +26,6 @@ class App
 		$this->func = function() use ($runNext, $func) {
 			return response::make($func($runNext));
 		};
-	}
-
-	function setPrefix($pref)
-	{
-		$this->prefix = $pref;
 	}
 
 	private function parseEnv()
@@ -73,19 +65,12 @@ class App
 
 	function get($path, $func)
 	{
-		$f = str_replace('//', '/', $this->prefix.'/'.$path);
-		$this->res['get'][$f] = $func;
+		$this->res['get'][$path] = $func;
 	}
 
 	function post($path, $func)
 	{
-		$f = str_replace('//', '/', $this->prefix.'/'.$path);
-		$this->res['post'][$f] = $func;
-	}
-
-	function beforeDispatch($func)
-	{
-		$this->before[] = $func;
+		$this->res['post'][$path] = $func;
 	}
 
 	/**
@@ -108,13 +93,6 @@ class App
 
 		$url = parse_url($_SERVER['REQUEST_URI']);
 		$requestedPath = $url['path'];
-
-		foreach ($this->before as $func) {
-			$r = call_user_func($func, $requestedPath);
-			if ($r) {
-				return response::make($r);
-			}
-		}
 
 		$match_args = [];
 		$match = null;
