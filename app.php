@@ -16,7 +16,13 @@ class App
 			return $this->serve();
 		};
 		$this->dir = $dir;
-		$this->parseEnv();
+
+		// Read the .env file if it exists.
+		$env = $this->dir.'/.env';
+		if (file_exists($env)) {
+			\havana_internal\env::parse($env);
+		}
+
 		$this->addLoader();
 	}
 
@@ -26,27 +32,6 @@ class App
 		$this->func = function() use ($runNext, $func) {
 			return response::make($func($runNext));
 		};
-	}
-
-	private function parseEnv()
-	{
-		$path = $this->dir.'/.env';
-		if (!file_exists($path)) {
-			return;
-		}
-		$lines = array_map('trim', file($path));
-		foreach ($lines as $line) {
-			if (strlen($line) == 0 || $line[0] == '#') {
-				continue;
-			}
-
-			list($name, $val) = array_map('trim', explode('=', $line, 2));
-			if (getenv($name) !== false) {
-				continue;
-			}
-			putenv("$name=$val");
-			$_ENV[$name] = $val;
-		}
 	}
 
 	/**
