@@ -219,6 +219,9 @@ class response
 		if ($val === null) {
 			return new response(200, null);
 		}
+		if (is_array($val)) {
+			return self::json($val);
+		}
 
 		trigger_error("Unknown response: ".gettype($val));
 		return self::make(self::ERROR);
