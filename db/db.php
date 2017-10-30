@@ -134,9 +134,14 @@ class dbclient
 	protected function run($query, $args)
 	{
 		$this->affected_rows = 0;
-		$st = $this->db->prepare($query);
-		$st->execute($args);
-		$this->affected_rows = $st->rowCount();
+		try {
+			$st = $this->db->prepare($query);
+			$st->execute($args);
+			$this->affected_rows = $st->rowCount();
+		} catch (\PDOException $e) {
+			$msg = $e->getMessage().'; query: '.$query;
+			throw new \Exception($msg, 0, $e);
+		}
 		return $st;
 	}
 
