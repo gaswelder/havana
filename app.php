@@ -5,6 +5,7 @@ namespace havana;
 class App
 {
 	private $res = ['get' => [], 'post' => []];
+	private $commands = [];
 
 	private $dir;
 
@@ -58,12 +59,22 @@ class App
 		$this->res['post'][$path] = $func;
 	}
 
+	function cmd($name, $func) {
+		$this->commands[$name] = $func;
+	}
+
 	/**
 	 * Runs the application.
 	 */
 	public function run()
 	{
 		$GLOBALS['__APPDIR'] = $this->dir;
+		if (php_sapi_name() == 'cli') {
+			$args = $_SERVER['argv'];
+			$cmd = $args[1];
+			call_user_func_array($this->commands[$cmd], $args);
+			return;
+		}
 		$next = $this->func;
 		$response = $next();
 		$response->flush();
