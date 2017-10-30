@@ -190,4 +190,9 @@ class request
 			return new upload($file);
 		}, $ok);
 	}
+
+	static function body()
+	{
+		return file_get_contents('php://input');
+	}
 }
