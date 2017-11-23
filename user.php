@@ -37,7 +37,7 @@ class user
 	static function addRole($name, $id = null)
 	{
 		self::init();
-		$role = self::$roles[$name] ?? null;
+		$role = isset(self::$roles[$name]) ? self::$roles[$name] : null;
 		if ($role) {
 			$role->clear();
 		}
@@ -47,13 +47,13 @@ class user
 	static function getRole($name)
 	{
 		self::init();
-		return self::$roles[$name] ?? null;
+		return $role = isset(self::$roles[$name]) ? self::$roles[$name] : null;
 	}
 
 	static function removeRole($name)
 	{
 		self::init();
-		$role = self::$roles[$name] ?? null;
+		$role = isset(self::$roles[$name]) ? self::$roles[$name] : null;
 		if ($role) {
 			$role->clear();
 		}

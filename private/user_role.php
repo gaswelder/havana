@@ -30,8 +30,8 @@ class user_role
 		$this->session->set($k, $v);
 	}
 
-	function unset($k) {
-		$this->session->unset($k);
+	function del($k) {
+		$this->session->del($k);
     }
     
     function clear() {

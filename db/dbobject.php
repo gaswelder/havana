@@ -101,7 +101,8 @@ class dbobject
 	static function get($id)
 	{
 		$key = static::TABLE_KEY;
-		return static::find([$key => $id])[0] ?? null;
+		$r = static::find([$key => $id]);
+		return isset($r[0]) ? $r[0] : null;
 	}
 
 	/**
@@ -153,7 +154,8 @@ class dbobject
 	}
 
 	static function findOne($filter, $order = null) {
-		return static::find($filter, $order)[0] ?? null;
+		$r = static::find($filter, $order);
+		return isset($r[0]) ? $r[0] : null;
 	}
 
 	protected static function getBaseFilter()

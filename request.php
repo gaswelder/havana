@@ -25,7 +25,7 @@ class url
 	}
 
 	function __get($k) {
-		return $this->data[$k] ?? null;
+		return isset($this->data[$k]) ? $this->data[$k] : null;
 	}
 
 	function isUnder($prefix) {

@@ -22,7 +22,7 @@ class session
 		$_SESSION[$key] = $value;
 	}
 
-	function unset($key)
+	function del($key)
 	{
 		$key = $this->fullKey($key);
 		unset($_SESSION[$key]);
@@ -31,7 +31,7 @@ class session
 	function get($key, $default = null)
 	{
 		$key = $this->fullKey($key);
-		return $_SESSION[$key] ?? $default;
+		return isset($_SESSION[$key]) ? $_SESSION[$key] : $default;
     }
     
     function clear()
