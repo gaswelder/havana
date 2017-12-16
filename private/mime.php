@@ -4,6 +4,7 @@ namespace havana_internal;
 class mime
 {
 	private static $types = array(
+		'.csv' => 'text/csv',
 		'.js' => 'text/javascript',
 		'.pdf' => 'application/pdf',
 		'.xml' => 'application/xml',

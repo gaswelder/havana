@@ -47,6 +47,19 @@ class response
 		$this->status = $code;
 	}
 
+	function download($name, $type = null)
+	{
+		if ($name && !$type) {
+			$type = mime::type($name);
+			if (!$type) {
+				trigger_error("Unknown MIME type for '$name'");
+				$type = 'application/octet-stream';
+			}
+		}
+		$this->header('Content-Disposition: attachment; filename="'.$name.'"');
+		return $this;
+	}
+
 	function header($s)
 	{
 		$this->headers[] = $s;
@@ -62,15 +75,15 @@ class response
 		else {
 			$str = self::$codes[$code];
 		}
-		header("$_SERVER[SERVER_PROTOCOL] $code $str");
-		header('Content-Type: '.$this->type);
-
-		foreach ($this->headers as $h) {
-			header($h);
-		}
 
 		if ($this->content === null && $this->status != 200) {
 			$this->content = "$this->status";
+		}
+
+		header("$_SERVER[SERVER_PROTOCOL] $code $str");
+		header('Content-Type: '.$this->type);
+		foreach ($this->headers as $h) {
+			header($h);
 		}
 
 		if ($this->content === null) {
@@ -82,6 +95,7 @@ class response
 			fclose($this->content);
 		}
 		else if (is_string($this->content)) {
+			header('Content-Length: ' . strlen($this->content));
 			echo $this->content;
 		}
 		else {
@@ -100,32 +114,6 @@ class response
 	{
 		$r = new response($code);
 		$r->header('Location: '.$url);
-		return $r;
-	}
-
-	static function download($content, $name = null, $type = null)
-	{
-		if ($name && !$type) {
-			$type = mime::type($name);
-			if (!$type) {
-				trigger_error("Unknown MIME type for '$name'");
-				$type = 'application/octet-stream';
-			}
-		}
-
-		$r = new response(200, $content, $type);
-
-		$s = 'Content-Disposition: attachment';
-		if ($name) {
-			$s .= ';filename="'.$name.'"';
-		}
-		$r->header($s);
-
-		if (is_string($content)) {
-			$size = strlen($content);
-			$r->header('Content-Length: '.$size);
-		}
-
 		return $r;
 	}
 
@@ -207,20 +195,20 @@ class response
 		if ($val instanceof response) {
 			return $val;
 		}
-		if (is_int($val)) {
-			$code = $val;
-			$r = new response();
-			$r->status = $code;
-			return $r;
-		}
-		if (is_string($val)) {
-			return new response(200, $val);
-		}
-		if ($val === null) {
-			return new response(200, null);
-		}
 		if (is_array($val)) {
 			return self::json($val);
+		}
+		$r = new response();
+		if ($val === null) {
+			return $r;
+		}
+		if (is_int($val)) {
+			$r->status = $val;
+			return $r;
+		}
+		if (is_string($val) || is_resource($val)) {
+			$r->content = $val;
+			return $r;
 		}
 
 		trigger_error("Unknown response: ".gettype($val));
