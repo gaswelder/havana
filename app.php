@@ -13,6 +13,7 @@ class App
 
 	function __construct($dir)
 	{
+		$GLOBALS['__APPDIR'] = $dir;
 		$this->func = function() {
 			return $this->serve();
 		};
@@ -68,7 +69,6 @@ class App
 	 */
 	public function run()
 	{
-		$GLOBALS['__APPDIR'] = $this->dir;
 		if (php_sapi_name() == 'cli') {
 			$args = $_SERVER['argv'];
 			$cmd = $args[1];
