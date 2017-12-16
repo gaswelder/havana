@@ -15,6 +15,10 @@ class upload
 		return file_get_contents($this->info['tmp_name']);
 	}
 
+	function stream() {
+		return fopen($this->info['tmp_name'], "rb");
+	}
+
 	function type() {
 		return $this->info['type'];
 	}
