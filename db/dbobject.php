@@ -7,6 +7,12 @@ class dbobject
 {
 	const TABLE_NAME = '__OVERRIDE_THIS!';
 	const TABLE_KEY = 'id';
+	const DATABASE = null;
+
+	static function db()
+	{
+		return db(static::DATABASE);
+	}
 
 	// Route access to "id" property to the appropriate field depending
 	// on the TABLE_KEY constant.
@@ -49,10 +55,10 @@ class dbobject
 		if (array_key_exists($key, $data) && $data[$key]) {
 			$filter = [$key => $data[$key]];
 			unset($data[$key]);
-			db()->update(static::TABLE_NAME, $data, $filter);
+			static::db()->update(static::TABLE_NAME, $data, $filter);
 		}
 		else {
-			$this->$key = db()->insert(static ::TABLE_NAME, $data);
+			$this->$key = static::db()->insert(static ::TABLE_NAME, $data);
 		}
 
 		return $this->$key;
@@ -135,7 +141,7 @@ class dbobject
 			$values[] = $value;
 		}
 		$q = 'SELECT id FROM "'.static::TABLE_NAME.'" WHERE '.implode(' AND ', $cond);
-		$id = call_user_func_array([db(), 'getValue'], array_merge([$q], $values));
+		$id = call_user_func_array([static::db(), 'getValue'], array_merge([$q], $values));
 		if ($id) return static::get($id);
 		$obj = new static();
 		foreach ($filter as $k => $v) {
@@ -149,7 +155,7 @@ class dbobject
 	{
 		$keys = static::fields();
 		$filter = array_merge(static::getBaseFilter(), $filter);
-		$rows = db()->select(static::TABLE_NAME, $keys, $filter, $order);
+		$rows = static::db()->select(static::TABLE_NAME, $keys, $filter, $order);
 		return static::fromRows($rows);
 	}
 
