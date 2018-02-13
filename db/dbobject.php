@@ -158,6 +158,13 @@ class dbobject
 		return $obj;
 	}
 
+	/**
+	 * Returns array of objects matching the given filter.
+	 *
+	 * @param array $filter Key-value pairs, for example ['name' => 'John']
+	 * @param string $order ORDER BY clause content (will be used as is)
+	 * @return array
+	 */
 	static function find($filter, $order = null)
 	{
 		$keys = static::fields();
