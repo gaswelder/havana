@@ -5,8 +5,27 @@ require __DIR__ . '/dbclient_mysql.php';
 require __DIR__ . '/dbclient_sqlite.php';
 require __DIR__ . '/dbclient_dummy.php';
 
-use PDO;
 use Exception;
+use PDO;
+use PDOException;
+
+class DBException extends Exception
+{
+	private $pdoException;
+	private $query;
+
+	function __construct($message, $code = 0, PDOException $previous = null, $query)
+	{
+		parent::__construct($message, $code, $previous);
+		$this->pdoException = $previous;
+		$this->query = $query;
+	}
+
+	function getQuery()
+	{
+		return $this->query;
+	}
+}
 
 class dbclient
 {
@@ -153,9 +172,9 @@ class dbclient
 			$st = $this->db->prepare($query);
 			$st->execute($args);
 			$this->affected_rows = $st->rowCount();
-		} catch (\PDOException $e) {
+		} catch (PDOException $e) {
 			$msg = $e->getMessage() . '; query: ' . $query;
-			throw new \Exception($msg, 0, $e);
+			throw new DBException($msg, 0, $e, $query);
 		}
 		return $st;
 	}
