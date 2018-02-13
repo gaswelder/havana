@@ -1,9 +1,9 @@
 <?php
 namespace havana;
 
-require __DIR__.'/dbclient_mysql.php';
-require __DIR__.'/dbclient_sqlite.php';
-require __DIR__.'/dbclient_dummy.php';
+require __DIR__ . '/dbclient_mysql.php';
+require __DIR__ . '/dbclient_sqlite.php';
+require __DIR__ . '/dbclient_dummy.php';
 
 use PDO;
 use Exception;
@@ -18,10 +18,14 @@ class dbclient
 		}
 
 		switch ($u['scheme']) {
-			case 'mysql': return new dbclient_mysql($url);
-			case 'sqlite': return new dbclient_sqlite($url);
-			case 'dummy': return new dbclient_dummy($url);
-			default: throw new Exception("Unknown database type: $u[scheme]");
+			case 'mysql':
+				return new dbclient_mysql($url);
+			case 'sqlite':
+				return new dbclient_sqlite($url);
+			case 'dummy':
+				return new dbclient_dummy($url);
+			default:
+				throw new Exception("Unknown database type: $u[scheme]");
 		}
 	}
 
@@ -35,8 +39,12 @@ class dbclient
 	 */
 	private $affected_rows = 0;
 
-	/*
-	 * Executes a query, returns true or false
+	/**
+	 * Executes a query, returns true or false.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $args Template arguments
+	 * @return bool
 	 */
 	function exec($query, ...$args)
 	{
@@ -100,10 +108,17 @@ class dbclient
 		return $row[0];
 	}
 
-	// Inserts a row given as a dict into the specified table.
+	/**
+	 * Inserts a row given as a dict into the specified table.
+	 * Returns primary key for the inserted row.
+	 *
+	 * @param string $table
+	 * @param array $row
+	 * @return mixed
+	 */
 	function insert($table, $row)
 	{
-		list ($query, $args) = sqlWriter::insert($table, $row);
+		list($query, $args) = sqlWriter::insert($table, $row);
 		$st = $this->run($query, $args);
 		$st->closeCursor();
 		return $this->db->lastInsertId();
@@ -113,7 +128,7 @@ class dbclient
 	// where rows match the given filter.
 	function update($table, $values, $filter)
 	{
-		list ($query, $args) = sqlWriter::update($table, $values, $filter);
+		list($query, $args) = sqlWriter::update($table, $values, $filter);
 		$st = $this->run($query, $args);
 		$st->closeCursor();
 		return $this->affectedRows();
@@ -123,7 +138,7 @@ class dbclient
 	// and returns results from getRows call with that query.
 	function select($table, $fields, $filter, $order)
 	{
-		list ($query, $args) = sqlWriter::select($table, $fields, $filter, $order);
+		list($query, $args) = sqlWriter::select($table, $fields, $filter, $order);
 		$rows = call_user_func_array([$this, 'getRows'], array_merge([$query], $args));
 		return $rows;
 	}
@@ -139,7 +154,7 @@ class dbclient
 			$st->execute($args);
 			$this->affected_rows = $st->rowCount();
 		} catch (\PDOException $e) {
-			$msg = $e->getMessage().'; query: '.$query;
+			$msg = $e->getMessage() . '; query: ' . $query;
 			throw new \Exception($msg, 0, $e);
 		}
 		return $st;
@@ -156,10 +171,10 @@ class sqlWriter
 	static function insert($table, $row)
 	{
 		$cols = array_keys($row);
-		$header =  '("'.implode('", "', $cols).'")';
+		$header = '("' . implode('", "', $cols) . '")';
 
 		$placeholders = array_fill(0, count($row), '?');
-		$tuple = '('.implode(', ', $placeholders).')';
+		$tuple = '(' . implode(', ', $placeholders) . ')';
 
 		$q = "INSERT INTO \"$table\" $header VALUES $tuple";
 		$args = array_values($row);
@@ -168,24 +183,24 @@ class sqlWriter
 
 	static function update($table, $values, $filter)
 	{
-		$q = 'UPDATE "'.$table.'" SET ';
+		$q = 'UPDATE "' . $table . '" SET ';
 
 		$args = [];
 
 		$set = [];
 		foreach ($values as $field => $value) {
-			$set[] = '"'.$field.'" = ?';
+			$set[] = '"' . $field . '" = ?';
 			$args[] = $value;
 		}
 		$q .= implode(', ', $set);
 
 		$where = [];
 		foreach ($filter as $field => $value) {
-			$where[] = '"'.$field.'" = ?';
+			$where[] = '"' . $field . '" = ?';
 			$args[] = $value;
 		}
 
-		$q .= ' WHERE '.implode(' AND ', $where);
+		$q .= ' WHERE ' . implode(' AND ', $where);
 
 		return [$q, $args];
 
@@ -200,17 +215,17 @@ class sqlWriter
 		$values = [];
 		foreach ($filter as $field => $value) {
 			if ($value === null) {
-				$cond[] = '"'.$field.'" IS NULL';
+				$cond[] = '"' . $field . '" IS NULL';
 				continue;
 			}
-			$cond[] = '"'.$field.'" = ?';
+			$cond[] = '"' . $field . '" = ?';
 			$values[] = $value;
 		}
 		$keysList = '"' . implode('", "', $fields) . '"';
 
 		$q = "SELECT $keysList FROM \"$table\"";
 		if (!empty($cond)) {
-			$q .= ' WHERE '.implode(' AND ', $cond);
+			$q .= ' WHERE ' . implode(' AND ', $cond);
 		}
 		if ($order) {
 			$q .= " ORDER BY $order";

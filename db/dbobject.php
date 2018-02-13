@@ -9,6 +9,11 @@ class dbobject
 	const TABLE_KEY = 'id';
 	const DATABASE = null;
 
+	/**
+	 * Returns the underlying database object.
+	 *
+	 * @return dbclient
+	 */
 	static function db()
 	{
 		return db(static::DATABASE);
@@ -27,7 +32,7 @@ class dbobject
 			}
 			return null;
 		}
-		throw new Exception("unknown property: $k in class '".static::class."'");
+		throw new Exception("unknown property: $k in class '" . static::class . "'");
 	}
 
 	function __set($k, $v)
@@ -40,7 +45,7 @@ class dbobject
 			$this->$key = $v;
 			return;
 		}
-		throw new Exception("unknown property: $k in class '".static::class."'");
+		throw new Exception("unknown property: $k in class '" . static::class . "'");
 	}
 
 	function save()
@@ -56,23 +61,25 @@ class dbobject
 			$filter = [$key => $data[$key]];
 			unset($data[$key]);
 			static::db()->update(static::TABLE_NAME, $data, $filter);
-		}
-		else {
-			$this->$key = static::db()->insert(static ::TABLE_NAME, $data);
+		} else {
+			$this->$key = static::db()->insert(static::TABLE_NAME, $data);
 		}
 
 		return $this->$key;
 	}
 
-	protected function formatData($data) {
+	protected function formatData($data)
+	{
 		return $data;
 	}
 
-	protected function parseData($data) {
+	protected function parseData($data)
+	{
 		return $data;
 	}
 
-	private function assign($data) {
+	private function assign($data)
+	{
 		$data = $this->parseData($data);
 		foreach (static::fields() as $k) {
 			if (isset($data[$k])) {
@@ -93,7 +100,7 @@ class dbobject
 	static function fromRow($row)
 	{
 		if (!$row) return null;
-		$l = new static ();
+		$l = new static();
 		$l->assign($row);
 		return $l;
 	}
@@ -119,7 +126,7 @@ class dbobject
 	static function getMultiple($ids)
 	{
 		$r = [];
-		foreach($ids as $id) {
+		foreach ($ids as $id) {
 			$r[] = self::get($id);
 		}
 		return $r;
@@ -140,7 +147,7 @@ class dbobject
 			$cond[] = "$field = ?";
 			$values[] = $value;
 		}
-		$q = 'SELECT id FROM "'.static::TABLE_NAME.'" WHERE '.implode(' AND ', $cond);
+		$q = 'SELECT id FROM "' . static::TABLE_NAME . '" WHERE ' . implode(' AND ', $cond);
 		$id = call_user_func_array([static::db(), 'getValue'], array_merge([$q], $values));
 		if ($id) return static::get($id);
 		$obj = new static();
@@ -159,7 +166,8 @@ class dbobject
 		return static::fromRows($rows);
 	}
 
-	static function findOne($filter, $order = null) {
+	static function findOne($filter, $order = null)
+	{
 		$r = static::find($filter, $order);
 		return isset($r[0]) ? $r[0] : null;
 	}

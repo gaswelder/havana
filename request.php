@@ -1,5 +1,4 @@
 <?php
-
 namespace havana;
 
 class url
@@ -24,13 +23,15 @@ class url
 		return $this->original;
 	}
 
-	function __get($k) {
+	function __get($k)
+	{
 		return isset($this->data[$k]) ? $this->data[$k] : null;
 	}
 
-	function isUnder($prefix) {
+	function isUnder($prefix)
+	{
 		$path = $this->path;
-		return $path == $prefix || strpos($path, $prefix.'/') === 0;
+		return $path == $prefix || strpos($path, $prefix . '/') === 0;
 	}
 }
 
@@ -45,19 +46,23 @@ class request
 		self::init();
 		if (array_key_exists($key, self::$get)) {
 			return self::$get[$key];
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
 
+	/**
+	 * Returns value of the given POST field.
+	 *
+	 * @param string $key
+	 * @return string|null
+	 */
 	static function post($key)
 	{
 		self::init();
 		if (array_key_exists($key, self::$post)) {
 			return self::$post[$key];
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
@@ -78,7 +83,7 @@ class request
 		 * We would use getallheaders, but that is not available
 		 * of all servers.
 		 */
-		$key = 'HTTP_'.str_replace('-', '_', strtoupper($name));
+		$key = 'HTTP_' . str_replace('-', '_', strtoupper($name));
 		if (isset($_SERVER[$key])) {
 			return $_SERVER[$key];
 		}
@@ -115,8 +120,7 @@ class request
 	{
 		if (is_array($value)) {
 			return array_map($func, $value);
-		}
-		else {
+		} else {
 			return $func($value);
 		}
 	}
@@ -125,12 +129,11 @@ class request
 	{
 		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
 			$protocol = "https";
-		}
-		else {
+		} else {
 			$protocol = "http";
 		}
-		$domain = $protocol.'://'.$_SERVER['HTTP_HOST'];
-		return new url($domain.$_SERVER['REQUEST_URI']);
+		$domain = $protocol . '://' . $_SERVER['HTTP_HOST'];
+		return new url($domain . $_SERVER['REQUEST_URI']);
 	}
 
 	static function files($input_name)
@@ -142,8 +145,7 @@ class request
 		$files = array();
 		if (!is_array($_FILES[$input_name]['name'])) {
 			$files[] = $_FILES[$input_name];
-		}
-		else {
+		} else {
 			$fields = array(
 				"type",
 				"tmp_name",
@@ -166,9 +168,9 @@ class request
 		$ok = array();
 		foreach ($files as $file) {
 			/*
-			* This happens with multiple file inputs with the same
-			* name marked with '[]'.
-			*/
+			 * This happens with multiple file inputs with the same
+			 * name marked with '[]'.
+			 */
 			if ($file['error'] == UPLOAD_ERR_NO_FILE) {
 				continue;
 			}
@@ -180,13 +182,13 @@ class request
 			}
 			unset($file['error']);
 
-			$size = round($file['size']/1024, 2);
+			$size = round($file['size'] / 1024, 2);
 			// h3::log("Upload: $file[name] ($size KB, $file[type])");
 
 			$ok[] = $file;
 		}
 
-		return array_map(function($file) {
+		return array_map(function ($file) {
 			return new upload($file);
 		}, $ok);
 	}
