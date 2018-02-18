@@ -78,7 +78,13 @@ class dbclient
 		return true;
 	}
 
-	// Queries and returns multiple rows.
+	/**
+	 * Queries and returns multiple rows as array of arrays.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $args Template arguments
+	 * @return array
+	 */
 	function getRows($query, ...$args)
 	{
 		$st = $this->run($query, $args);
@@ -87,8 +93,14 @@ class dbclient
 		return $rows;
 	}
 
-	// Queries and returns one row from the result.
-	// Returns null if there are no rows in the result.
+	/**
+	 * Queries and returns one row from the result.
+	 * Returns null if there are no rows in the result.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $args Template arguments
+	 * @return array|null
+	 */
 	function getRow($query, ...$args)
 	{
 		$st = $this->run($query, $args);
@@ -100,7 +112,13 @@ class dbclient
 		return $rows[0];
 	}
 
-	// Queries and returns one column as an array
+	/**
+	 * Queries and returns one column as an array.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $args Template arguments
+	 * @return array
+	 */
 	function getValues($query, ...$args)
 	{
 		$st = $this->run($query, $args);
@@ -116,8 +134,14 @@ class dbclient
 		return $values;
 	}
 
-	// Queries and returns a single value.
-	// Returns null if there are now rows in the result.
+	/**
+	 * Queries and returns a single value.
+	 * Returns null if there are now rows in the result.
+	 *
+	 * @param string $query Query template
+	 * @param mixed $args Template arguments
+	 * @return mixed|null
+	 */
 	function getValue($query, ...$args)
 	{
 		$st = $this->run($query, $args);
@@ -143,8 +167,16 @@ class dbclient
 		return $this->db->lastInsertId();
 	}
 
-	// Updates the specified table setting values from the 'values' dict
-	// where rows match the given filter.
+	/**
+	 * Updates the specified table setting values from the 'values' dict
+	 * where rows match the given filter.
+	 * Returns number of affected rows.
+	 *
+	 * @param string $table
+	 * @param array $values Field->value map to set
+	 * @param array $filter Field->value rows filter
+	 * @return int
+	 */
 	function update($table, $values, $filter)
 	{
 		list($query, $args) = sqlWriter::update($table, $values, $filter);

@@ -1,22 +1,23 @@
 <?php
-
 namespace havana;
 
 use havana_internal\mime;
 
 class response
 {
-	public $content;
-	public $type;
-	public $status;
-	private $headers = [];
-
 	const STATUS_OK = 200;
+	const STATUS_NOT_MODIFIED = 304;
 	const STATUS_BADREQ = 400;
 	const STATUS_FORBIDDEN = 403;
 	const STATUS_NOTFOUND = 404;
 	const STATUS_METHOD_NOT_ALLOWED = 405;
 	const STATUS_SERVER_ERROR = 500;
+
+	private $content = '';
+	private $status = self::STATUS_OK;
+	private $headers = [
+		'Content-Type' => 'text/html; charset=utf-8'
+	];
 
 	private static $codes = array(
 		'200' => 'OK',
@@ -37,53 +38,54 @@ class response
 		'503' => 'Service Unavailable'
 	);
 
-	function __construct($code = 200, $content = null, $type = null)
+	/**
+	 * Sets the response's status.
+	 *
+	 * @param int $code HTTP status code
+	 * @return self
+	 */
+	function setStatus($code)
 	{
-		if (!$type) {
-			$type = 'text/html; charset=utf-8';
+		if (!isset(self::$codes[$code])) {
+			panic("Unknown status code: $code");
 		}
-		$this->type = $type;
-		$this->content = $content;
 		$this->status = $code;
-	}
-
-	function download($name, $type = null)
-	{
-		if ($name && !$type) {
-			$type = mime::type($name);
-			if (!$type) {
-				trigger_error("Unknown MIME type for '$name'");
-				$type = 'application/octet-stream';
-			}
-		}
-		$this->header('Content-Disposition: attachment; filename="'.$name.'"');
 		return $this;
 	}
 
-	function header($s)
+	/**
+	 * Sets the response's header.
+	 *
+	 * @param string $name Header name
+	 * @param string $value Header value
+	 * @return self
+	 */
+	function setHeader($name, $value)
 	{
-		$this->headers[] = $s;
+		$this->headers[$name] = $value;
+		return $this;
+	}
+
+	/**
+	 * Sets the response's content.
+	 *
+	 * @param string|resource $content
+	 * @return self
+	 */
+	function setContent($content)
+	{
+		$this->content = $content;
+		return $this;
 	}
 
 	function flush()
 	{
 		$code = $this->status;
-		if (!isset(self::$codes[$code])) {
-			trigger_error("Unknown HTTP error number: $code");
-			$str = 'unknown';
-		}
-		else {
-			$str = self::$codes[$code];
-		}
-
-		if ($this->content === null && $this->status != 200) {
-			$this->content = "$this->status";
-		}
+		$str = self::$codes[$code];
 
 		header("$_SERVER[SERVER_PROTOCOL] $code $str");
-		header('Content-Type: '.$this->type);
-		foreach ($this->headers as $h) {
-			header($h);
+		foreach ($this->headers as $name => $value) {
+			header("$name: $value");
 		}
 
 		if ($this->content === null) {
@@ -93,31 +95,52 @@ class response
 		if (is_resource($this->content)) {
 			fpassthru($this->content);
 			fclose($this->content);
+			return;
 		}
-		else if (is_string($this->content)) {
-			header('Content-Length: ' . strlen($this->content));
+
+		if (is_string($this->content)) {
 			echo $this->content;
+			return;
 		}
-		else {
-			trigger_error('Unknown kind of content: '.gettype($this->content));
-			echo $this->content;
-		}
+
+		panic('Unknown type of content: ' . gettype($this->content));
 	}
 
+	/**
+	 * Creates a response with JSON content.
+	 *
+	 * @param mixed $data JSON-encodable data
+	 * @return self
+	 */
 	static function json($data)
 	{
 		$str = json_encode($data);
-		return new response(200, $str, 'application/json; charset=utf-8');
-	}
-
-	static function redirect($url, $code = 302)
-	{
-		$r = new response($code);
-		$r->header('Location: '.$url);
+		$r = new self();
+		$r->setContent(json_encode($data));
+		$r->setHeader('Content-Type', 'application/json; charset=utf-8');
 		return $r;
 	}
 
-	// Returns response that serves static file from the given filesystem path.
+	/**
+	 * Create a redirection response.
+	 *
+	 * @param string $url
+	 * @param int $code
+	 * @return self
+	 */
+	static function redirect($url, $code = 302)
+	{
+		$r = new self();
+		$r->setHeader('Location', $url);
+		return $r;
+	}
+
+	/**
+	 * Returns response that serves static file from the given filesystem path.
+	 *
+	 * @param string $path Path to the file
+	 * @return self
+	 */
 	static function staticFile($path)
 	{
 		$type = mime::type($path);
@@ -127,17 +150,17 @@ class response
 
 		$etag = md5_file($path);
 
-		$r = new response();
-		$r->header('Content-Length: '.filesize($path));
-		$r->header('ETag: '.$etag);
-		$r->header('Content-Type: '.$type);
+		$r = new self();
+		$r->setHeader('Content-Length', filesize($path));
+		$r->setHeader('ETag', $etag);
+		$r->setHeader('Content-Type', $type);
 
 		if (self::cacheValid($path, $etag)) {
-			$r->status = 304;
+			$r->setStatus(self::STATUS_NOT_MODIFIED);
 			return $r;
 		}
 
-		$r->content = fopen($path, 'rb');
+		$r->setContent(fopen($path), 'rb');
 		return $r;
 	}
 
@@ -165,30 +188,41 @@ class response
 		return true;
 	}
 
-	static function download_file($path, $name = null, $type = null)
+	/**
+	 * Returns a file download response.
+	 *
+	 * @param string $path Path to the file
+	 * @param string $name Name of the downloaded file
+	 * @param string $type MIME type of the file
+	 * @return self
+	 */
+	static function download($path, $name = null, $type = null)
 	{
 		if ($name && !$type) {
 			$type = mime::type($name);
 			if (!$type) {
-				trigger_error("Unknown MIME type for '$name'");
 				$type = 'application/octet-stream';
 			}
 		}
 
 		$f = fopen($path, 'rb');
-		$r = new response(200, $f, $type);
-		$s = 'Content-Disposition: attachment';
-		if ($name) {
-			$s .= ';filename="'.$name.'"';
-		}
-		$r->header($s);
 		$size = filesize($path);
-		$r->header('Content-Length: '.$size);
+
+		$s = 'attachment';
+		if ($name) $s .= ';filename="' . $name . '"';
+
+		$r = new self;
+		$r->setContent($f);
+		$r->setHeader('Content-Disposition', $s);
+		$r->setHeader('Content-Length', $size);
 		return $r;
 	}
 
-	/*
-	 * Converts loose return value to a response object
+	/**
+	 * Converts loose return value to a response object.
+	 *
+	 * @param mixed $val Value to return to the client
+	 * @return self
 	 */
 	static function make($val)
 	{
@@ -203,15 +237,15 @@ class response
 			return $r;
 		}
 		if (is_int($val)) {
-			$r->status = $val;
+			$r->setStatus($val);
+			$r->setContent(self::$codes[$val]);
 			return $r;
 		}
 		if (is_string($val) || is_resource($val)) {
-			$r->content = $val;
+			$r->setContent($val);
 			return $r;
 		}
 
-		trigger_error("Unknown response: ".gettype($val));
-		return self::make(self::ERROR);
+		panic("Unknown response value type: " . gettype($val));
 	}
 }

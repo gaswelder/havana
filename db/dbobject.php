@@ -48,6 +48,11 @@ class dbobject
 		throw new Exception("unknown property: $k in class '" . static::class . "'");
 	}
 
+	/**
+	 * Saves the object to the database. Returns the object's ID.
+	 *
+	 * @return mixed
+	 */
 	function save()
 	{
 		$data = [];
@@ -97,6 +102,12 @@ class dbobject
 		return $list;
 	}
 
+	/**
+	 * Returns an object restored from the given database record.
+	 *
+	 * @param array $row
+	 * @return static
+	 */
 	static function fromRow($row)
 	{
 		if (!$row) return null;
@@ -173,6 +184,13 @@ class dbobject
 		return static::fromRows($rows);
 	}
 
+	/**
+	 * Returns one object matching the filter or null if there is no match.
+	 *
+	 * @param array $filter Key-value filter pairs
+	 * @param string $order ORDER BY clause content
+	 * @return static|null
+	 */
 	static function findOne($filter, $order = null)
 	{
 		$r = static::find($filter, $order);

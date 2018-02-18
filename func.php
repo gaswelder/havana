@@ -1,6 +1,9 @@
 <?php
 use havana\dbclient;
 
+/**
+ * @return dbclient
+ */
 function db($url = null)
 {
 	static $clients = [];

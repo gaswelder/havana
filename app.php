@@ -1,5 +1,4 @@
 <?php
-
 namespace havana;
 
 class App
@@ -11,16 +10,19 @@ class App
 
 	private $func = null;
 
+	/**
+	 * @param string $dir Path to the application's directory
+	 */
 	function __construct($dir)
 	{
 		$GLOBALS['__APPDIR'] = $dir;
-		$this->func = function() {
+		$this->func = function () {
 			return $this->serve();
 		};
 		$this->dir = $dir;
 
 		// Read the .env file if it exists.
-		$env = $this->dir.'/.env';
+		$env = $this->dir . '/.env';
 		if (file_exists($env)) {
 			\havana_internal\env::parse($env);
 		}
@@ -31,7 +33,7 @@ class App
 	function middleware($func)
 	{
 		$runNext = $this->func;
-		$this->func = function() use ($runNext, $func) {
+		$this->func = function () use ($runNext, $func) {
 			return response::make($func($runNext));
 		};
 	}
@@ -42,8 +44,8 @@ class App
 	 */
 	private function addLoader()
 	{
-		spl_autoload_register(function($className) {
-			$path = $this->dir.'/classes/'.$className.'.php';
+		spl_autoload_register(function ($className) {
+			$path = $this->dir . '/classes/' . $className . '.php';
 			if (file_exists($path)) {
 				require_once($path);
 			}
@@ -60,7 +62,14 @@ class App
 		$this->res['post'][$path] = $func;
 	}
 
-	function cmd($name, $func) {
+	/**
+	 * Defines a console command.
+	 *
+	 * @param string $name Console command name
+	 * @param callable $func Callable that will be called for this command
+	 */
+	function cmd($name, $func)
+	{
 		$this->commands[$name] = $func;
 	}
 
