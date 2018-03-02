@@ -2,7 +2,6 @@
 
 Havana is a lightweight PHP library for making web backends.
 
-
 ## Hello world
 
 ```php
@@ -17,7 +16,7 @@ $app->run();
 
 ## Configuration
 
-This library parses `.env` file in the application root and applies the values to its environment variables list. The file might look like this:
+This library parses `.env` file in the application root and updates its environment variables from it. The file might look like this:
 
 ```
 # Comments
@@ -25,45 +24,52 @@ DATABASE=mysql://root:root@127.0.0.1/dbname
 DEBUG=1
 ```
 
-The `.env` file provides "default" values. That means, if a variable has been defined before (for example, by the parent process or a system config), it won't be overwritten with a value from the .env file.
-
+The `.env` file provides "default" values. That means, if a variable has been defined beforehand (for example, by the parent process or in a system config), it won't be overwritten by the `.env` file.
 
 ## Serving URLs
 
-Use `get` or `post` function, depending on the request method, and provide the URL pattern and a callable function:
+URL handlers are declared with the `get` and `post` functions, which take a URL pattern and a callable:
 
 ```php
 $app->get('/', function() {...})
 $app->post('/', function() {...})
 ```
 
-URL patterns are defined as parts separated by slashes. Each part as a regular string, but may contain PCRE expressions encosed in curly braces:
+URL patterns are defined as parts separated by slashes. Each part is a regular string, but may also contain PCRE expressions enclosed in curly braces:
 
 ```php
+// Will match '/items/sku4', '/items/sku56'
 $app->get('/items/sku{\d+}', function($sku) {
     // ...
 });
+
+// Will match 'users/john', 'users/bob'
 $app->get('/users/{[a-z0-9]+})', function($username) {
     // ...
 });
 ```
 
-Note that since slashes are handles separately, a regular expression in the braces can't ever match a slash.
+Each pattern is first split into parts (using slashes as separators) and then each part is filtered through the matcher, so a regular expression in braces couldn't possibly encounter a slash.
 
-The extracted arguments are passed to the callback in the same order as they were defined:
+Every regular expression results in an argument added to the handler's function call:
 
 ```php
 $app->get('/archive/{\d\d\d\d}/{\d\d}', function($year, $month) {
-    
+
 });
 ```
 
-The leading and the trailing slashes in URL templates are optional.
+The leading and the trailing slashes in URL templates are optional. The three following definitions are equivalent:
 
+```php
+$app->get('foo', $foo);
+$app->get('/foo', $foo);
+$app->get('/foo/', $foo);
+```
 
-## Response
+## Response format
 
-If a URL callback returns a string, it is assumed to be HTML to serve with a `200 OK` status:
+If a URL callback returns a string, it is assumed to be HTML and is served with a `200 OK` status:
 
 ```php
 $app->get('/world-communism', function() {
@@ -79,7 +85,7 @@ $app->get('/', function() {
 });
 ```
 
-If a number is returned, it is assumed to be an HTTP status code:
+If a number is returned, it is assumed to be an HTTP status code. The example below will produce a `404 Not Found` response:
 
 ```php
 $app->get('/politicians/conscience', function() {
@@ -87,7 +93,7 @@ $app->get('/politicians/conscience', function() {
 });
 ```
 
-Of course "magic constants" are not always friendly, but everyone knows what 404 is. Anyway, status codes are also enumerated in the `response` class:
+Everyone knows what 404 is, but status codes are also enumerated as constants in the `response` class:
 
 ```php
 $app->get('/snowden', function() {
@@ -199,7 +205,6 @@ $path = $upload->saveToDir('uploads');
 // uploads/59cee1d6c90c9.jpeg
 ```
 
-
 ## Database
 
 The `DATABASE` environment variable must be set to the URL of the database resource, for example:
@@ -223,7 +228,6 @@ $id = db()->insert('users', ['email' => 'bob@example.net', 'name' => 'Bob']);
 db()->update('users', ['status' => 'approved'], ['email' => 'bob@example.net']);
 db()->exec('update transactions set amount = amount * 2 where original_currency = ?', $cur);
 ```
-
 
 ## Database models
 
@@ -300,7 +304,6 @@ If `$row` is null, then `$article` will also be null.
 
 Note that even though we select all columns in the query, the model will pick from the returned row only those columns that it knows about (title and content in the example above).
 
-
 ### Relationships
 
 Suppose in addition to articles we also have authors:
@@ -327,7 +330,6 @@ class article extends dbobject {
 ```
 
 Note that we added the `author_id` field to make it accessible by our model.
-
 
 ## Session
 
@@ -370,14 +372,59 @@ $account_id = user::getRole('customer')->id;
 
 ## Templates
 
-The templates processed by the `tpl` function are regular PHP files with one addition. The double braces syntax is parsed and translated into regular `<?= ?>` PHP tags with the contents wrapped in `htmlspecialchars` function. So, this template:
+Templates are loaded from the application's `templates` directory by name using the `tpl` function, which takes the template's name and optional key-value array of arguments. For example, the following handler will process the template from the `templates/home.php` file:
 
 ```php
-<a href="/user/{{$id}}">{{$name}}</a>
+$app->get('/', function() {
+    return tpl('home');
+});
+```
+
+The templates are regular PHP files with one addition. The double braces syntax is parsed and translated into regular `<?= ?>` PHP tags with the contents wrapped in `htmlspecialchars` function. So, this template:
+
+```php
+<body>
+<p>Hello, {{$name}}</p>
+</body>
 ```
 
 is equivalent to:
 
 ```php
-<a href="/user/<?= htmlspecialchars($id) ?>"><?= $name ?></a>
+<body>
+<p>Hello, <?= htmlspecialchars($name) ?></p>
+</body>
+```
+
+and this call:
+
+```php
+tpl('home', ['name' => 'Bob']);
+```
+
+will return string:
+
+```html
+<body>
+<p>Hello, Bob</p>
+</body>
+```
+
+## Namespace
+
+All public objects are in the `havana` namespace:
+
+```php
+use havana\app;
+use havana\request;
+use havana\response;
+use havana\user;
+```
+
+There are also few global functions:
+
+```php
+db();
+dd($var, ...);
+dump($var, ...);
 ```
