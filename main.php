@@ -42,7 +42,6 @@ set_error_handler(function ($errno, $msg, $path, $line, $context) {
 
 require __DIR__ . '/app.php';
 require __DIR__ . '/lang.php';
-require __DIR__ . '/mail.php';
 require __DIR__ . '/response.php';
 require __DIR__ . '/request.php';
 require __DIR__ . '/upload.php';
