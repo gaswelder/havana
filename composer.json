@@ -1,0 +1,7 @@
+{
+    "name": "gaswelder/havana",
+    "description": "Nano-framework",
+    "type": "library",
+    "license": "MIT",
+    "require": {}
+}
