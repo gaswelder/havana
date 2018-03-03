@@ -446,3 +446,25 @@ panic($message);
 ```
 
 Any error triggered by the library will be thrown as an instance of `havana\Exception`.
+
+## Command-line scripts
+
+It's possible to define command line scripts using the `cmd` function:
+
+```php
+$app->cmd('echo', function($args) {
+    foreach ($args as $arg) {
+        echo $arg, "\n";
+    }
+});
+```
+
+To run a defined command simply call the main script from the command line:
+
+```
+$ php main.php echo one two
+one
+two
+```
+
+When the application is run, it will detect that it's being run from a command-line interface and will call the corresponding command instead of serving the HTTP request. This mode is useful for running maintenance scripts as they will have access to all the objects the regular web script has.
