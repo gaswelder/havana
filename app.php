@@ -28,6 +28,10 @@ class App
 		}
 
 		$this->addLoader();
+
+		$this->commands['server'] = function () {
+			system('php -S localhost:8080 -t public');
+		};
 	}
 
 	/**
