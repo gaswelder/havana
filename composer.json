@@ -3,5 +3,8 @@
     "description": "Nano-framework",
     "type": "library",
     "license": "MIT",
-    "require": {}
+    "require": {},
+    "autoload": {
+		"files": ["main.php"]
+	}
 }
