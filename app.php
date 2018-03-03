@@ -1,6 +1,11 @@
 <?php
 namespace havana;
 
+class Exception extends \Exception
+{
+
+}
+
 class App
 {
 	private $res = ['get' => [], 'post' => []];

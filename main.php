@@ -1,10 +1,17 @@
 <?php
 use havana\dbclient;
 
+/**
+ * Throws a new exception with the given message.
+ */
 function panic($message)
 {
-	throw new Exception($message);
+	throw new havana\Exception($message);
 }
+
+set_error_handler(function ($errno, $msg, $path, $line, $context) {
+	panic("$msg at $path:$line");
+});
 
 /**
  * @return dbclient
@@ -36,9 +43,7 @@ function dump()
 	call_user_func_array('var_dump', func_get_args());
 }
 
-set_error_handler(function ($errno, $msg, $path, $line, $context) {
-	panic("$msg at $path:$line");
-});
+
 
 require __DIR__ . '/app.php';
 require __DIR__ . '/lang.php';

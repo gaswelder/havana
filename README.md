@@ -442,4 +442,7 @@ There are also few global functions:
 db();
 dd($var, ...);
 dump($var, ...);
+panic($message);
 ```
+
+Any error triggered by the library will be thrown as an instance of `havana\Exception`.

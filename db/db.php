@@ -5,7 +5,6 @@ require __DIR__ . '/dbclient_mysql.php';
 require __DIR__ . '/dbclient_sqlite.php';
 require __DIR__ . '/dbclient_dummy.php';
 
-use Exception;
 use PDO;
 use PDOException;
 

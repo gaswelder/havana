@@ -151,7 +151,7 @@ class upload
 		);
 		$u = $m[2];
 		if (!isset($units[$u])) {
-			trigger_error("Unknown size unit in '$s'");
+			panic("Unknown size unit in '$s'");
 			return -1;
 		}
 		return $m[1] * $units[$u];
