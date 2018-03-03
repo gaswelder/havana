@@ -205,6 +205,21 @@ $path = $upload->saveToDir('uploads');
 // uploads/59cee1d6c90c9.jpeg
 ```
 
+## Middleware
+
+Middleware functions are a generalization of pre-response and post-response hooks. As the response hooks, middleware is typically used to check some conditions or modify the returned response in some way.
+
+Middleware functions are added using the `middleware` method and themselves accept a function that returns the response as the only argument. For example, a middleware that implements a login guard might look like this:
+
+```php
+$app->middleware(function($next) {
+    if (!user::getRole('user') && request::url()->path != '/login') {
+        return response::redirect('/login');
+    }
+    return $next();
+});
+```
+
 ## Database
 
 The `DATABASE` environment variable must be set to the URL of the database resource, for example:

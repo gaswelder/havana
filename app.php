@@ -30,6 +30,11 @@ class App
 		$this->addLoader();
 	}
 
+	/**
+	 * Adds a middleware function.
+	 *
+	 * @param callable $func
+	 */
 	function middleware($func)
 	{
 		$runNext = $this->func;
