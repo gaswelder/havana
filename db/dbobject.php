@@ -1,8 +1,6 @@
 <?php
 namespace havana;
 
-use Exception;
-
 class dbobject
 {
 	const TABLE_NAME = '__OVERRIDE_THIS!';
