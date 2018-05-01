@@ -159,6 +159,11 @@ class request
 		}, $ok);
 	}
 
+	/**
+	 * Returns request's body as a string.
+	 *
+	 * @return string
+	 */
 	static function body()
 	{
 		return file_get_contents('php://input');
