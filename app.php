@@ -16,7 +16,7 @@ class App
 	private $func = null;
 
 	/**
-	 * @param string $dir Path to the application's directory
+	 * @param string $dir Path to the application's directory. In most cases pass `__DIR__`.
 	 */
 	function __construct($dir)
 	{
