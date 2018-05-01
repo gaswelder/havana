@@ -35,7 +35,9 @@ class App
 		$this->addLoader();
 
 		$this->commands['server'] = function () {
-			system('php -S localhost:8080 -t public');
+			$addr = 'localhost:8080';
+			error_log("Starting server at $addr");
+			system("php -S $addr -t public");
 		};
 	}
 
