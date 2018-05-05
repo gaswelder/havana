@@ -41,7 +41,7 @@ class user
 		if ($role) {
 			$role->clear();
 		}
-		self::$roles = new user_role($name, $id);
+		self::$roles[$name] = new user_role($name, $id);
 	}
 
 	static function getRole($name)
