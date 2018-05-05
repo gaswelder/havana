@@ -2,8 +2,8 @@
 
 namespace havana;
 
-require __DIR__.'/private/session.php';
-require __DIR__.'/private/user_role.php';
+require __DIR__ . '/private/session.php';
+require __DIR__ . '/private/user_role.php';
 
 use havana_internal\user_role;
 
@@ -28,7 +28,7 @@ class user
 				$keys[] = $parts[1];
 			}
 		}
-	
+
 		foreach ($keys as $k) {
 			self::$roles[$k] = new user_role($k);
 		}
@@ -36,8 +36,8 @@ class user
 
 	static function addRole($name, $id = null)
 	{
-		self::init();
-		$role = isset(self::$roles[$name]) ? self::$roles[$name] : null;
+		// If this role already exists, clear its data.
+		$role = self::getRole($name);
 		if ($role) {
 			$role->clear();
 		}
@@ -47,7 +47,8 @@ class user
 	static function getRole($name)
 	{
 		self::init();
-		return $role = isset(self::$roles[$name]) ? self::$roles[$name] : null;
+		if (!isset(self::$roles[$name])) return null;
+		return self::$roles[$name];
 	}
 
 	static function removeRole($name)
