@@ -114,7 +114,6 @@ class response
 	 */
 	static function json($data)
 	{
-		$str = json_encode($data);
 		$r = new self();
 		$r->setContent(json_encode($data));
 		$r->setHeader('Content-Type', 'application/json; charset=utf-8');
