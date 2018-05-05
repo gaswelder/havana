@@ -131,6 +131,7 @@ class response
 	{
 		$r = new self();
 		$r->setHeader('Location', $url);
+		$r->setStatus($code);
 		return $r;
 	}
 
