@@ -236,7 +236,7 @@ class response
 		if ($val === null) {
 			return $r;
 		}
-		if (is_int($val)) {
+		if (is_int($val) && isset(self::$codes[$val])) {
 			$r->setStatus($val);
 			$r->setContent(self::$codes[$val]);
 			return $r;
