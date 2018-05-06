@@ -189,33 +189,26 @@ class response
 	}
 
 	/**
-	 * Returns a file download response.
+	 * Adds headers making the response download as a file.
 	 *
-	 * @param string $path Path to the file
-	 * @param string $name Name of the downloaded file
-	 * @param string $type MIME type of the file
+	 * @param string $name File name for the user agent.
+	 * @param string $type MIME type of the file. If omitted, will be inferred from the file name.
 	 * @return self
 	 */
-	static function download($path, $name = null, $type = null)
+	function downloadAs($name = null, $type = null)
 	{
-		if ($name && !$type) {
+		if (!$type && $name) {
 			$type = mime::type($name);
-			if (!$type) {
-				$type = 'application/octet-stream';
-			}
 		}
-
-		$f = fopen($path, 'rb');
-		$size = filesize($path);
-
+		if (!$type) {
+			$type = 'application/octet-stream';
+		}
 		$s = 'attachment';
 		if ($name) $s .= ';filename="' . $name . '"';
 
-		$r = new self;
-		$r->setContent($f);
-		$r->setHeader('Content-Disposition', $s);
-		$r->setHeader('Content-Length', $size);
-		return $r;
+		$this->setHeader('Content-Disposition', $s);
+		$this->setHeader('Content-Type', $type);
+		return $this;
 	}
 
 	/**
