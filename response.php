@@ -160,7 +160,7 @@ class response
 			return $r;
 		}
 
-		$r->setContent(fopen($path), 'rb');
+		$r->setContent(fopen($path, 'rb'));
 		return $r;
 	}
 
