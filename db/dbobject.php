@@ -3,7 +3,7 @@ namespace havana;
 
 class dbobject
 {
-	const TABLE_NAME = '__OVERRIDE_THIS!';
+	const TABLE_NAME = '__OVERRIDE_TABLE_NAME!';
 	const TABLE_KEY = 'id';
 	const DATABASE = null;
 
