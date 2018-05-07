@@ -11,6 +11,7 @@ class response
 	const STATUS_FORBIDDEN = 403;
 	const STATUS_NOTFOUND = 404;
 	const STATUS_METHOD_NOT_ALLOWED = 405;
+	const STATUS_CONFLICT = 409;
 	const STATUS_SERVER_ERROR = 500;
 
 	private $content = '';
@@ -33,6 +34,7 @@ class response
 		'404' => 'Not Found',
 		'405' => 'Method Not Allowed',
 		'406' => 'Not Acceptable',
+		'409' => 'Conflict',
 		'410' => 'Gone',
 		'500' => 'Internal Server Error',
 		'503' => 'Service Unavailable'
