@@ -117,6 +117,15 @@ class App
 		$matches = array_filter($this->routes, function (route $route) use ($url) {
 			return $route->matches($url['path']);
 		});
+		// Order the routes by specificity.
+		usort($matches, function (route $a, route $b) {
+			$s1 = $a->specificity();
+			$s2 = $b->specificity();
+			if ($s2 > $s1) return 1;
+			if ($s2 < $s1) return -1;
+			return 0;
+		});
+
 		if (count($matches) == 0) {
 			return response::make(response::STATUS_NOTFOUND);
 		}

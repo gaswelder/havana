@@ -24,6 +24,18 @@ class route
     }
 
     /**
+     * Returns a measure of how specific this pattern is.
+     * The best match of multiple routes is the one with the highest
+     * specificity.
+     *
+     * @return int
+     */
+    function specificity()
+    {
+        return $this->pattern->specificity();
+    }
+
+    /**
      * Calls the handler for the given method and URL path.
      * Returns whatever the handler returns.
      *
@@ -41,17 +53,37 @@ class route
 class pattern
 {
     private $parts = [];
+    private $joker = false;
 
     function __construct($string)
     {
+        if ($string == '*') {
+            $this->joker = true;
+        }
         $pat_parts = explode('/', trim($string, '/'));
         foreach ($pat_parts as $part) {
             $this->parts[] = new expr($part);
         }
     }
 
+    function specificity()
+    {
+        if ($this->joker) {
+            return 0;
+        }
+
+        $s = 1;
+        foreach ($this->parts as $expr) {
+            $s += 100 + $expr->specificity();
+        }
+        return $s;
+    }
+
     function match($url)
     {
+        if ($this->joker) {
+            return [];
+        }
         $uri_parts = array_map('urldecode', explode('/', trim($url, '/')));
         if (count($uri_parts) != count($this->parts)) {
             return false;
@@ -85,6 +117,16 @@ class expr
     {
         $p = $this->toPCRE();
         return preg_match($p, $s, $m);
+    }
+
+    function specificity()
+    {
+        $s = 0;
+        foreach ($this->toks as $tok) {
+            if ($tok[0] == 'lit') $s += 10;
+            else $s += 1;
+        }
+        return $s;
     }
 
     function toPCRE()

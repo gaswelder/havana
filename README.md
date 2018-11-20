@@ -67,6 +67,14 @@ $app->get('/foo', $foo);
 $app->get('/foo/', $foo);
 ```
 
+When serving a webapp with its own routing it's useful to have a default route for all requests that didn't match any of the previous patterns:
+
+```php
+$app->get('*', function() {
+    // serve the webapp code.
+});
+```
+
 ## Response format
 
 If a URL callback returns a string, it is assumed to be HTML and is served with a `200 OK` status:
