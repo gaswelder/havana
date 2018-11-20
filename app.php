@@ -32,7 +32,14 @@ class App
 			\havana_internal\env::parse($env);
 		}
 
-		$this->addLoader();
+		// Register a class loader that loads classes from the
+		// application's directory.
+		spl_autoload_register(function ($className) {
+			$path = $this->dir . '/classes/' . $className . '.php';
+			if (file_exists($path)) {
+				require_once($path);
+			}
+		});
 
 		$this->commands['server'] = function () {
 			$addr = 'localhost:8080';
@@ -52,20 +59,6 @@ class App
 		$this->func = function () use ($runNext, $func) {
 			return response::make($func($runNext));
 		};
-	}
-
-	/**
-	 * Registers a class loader that loads classes from the
-	 * application's directory.
-	 */
-	private function addLoader()
-	{
-		spl_autoload_register(function ($className) {
-			$path = $this->dir . '/classes/' . $className . '.php';
-			if (file_exists($path)) {
-				require_once($path);
-			}
-		});
 	}
 
 	function get($path, $func)
