@@ -1,6 +1,8 @@
 <?php
 namespace havana;
 
+use havana_internal\route;
+
 class Exception extends \Exception
 {
 
@@ -8,7 +10,7 @@ class Exception extends \Exception
 
 class App
 {
-	private $res = ['get' => [], 'post' => []];
+	private $routes = [];
 	private $commands = [];
 
 	private $dir;
@@ -63,12 +65,20 @@ class App
 
 	function get($path, $func)
 	{
-		$this->res['get'][$path] = $func;
+		$this->addRoute($path, 'get', $func);
 	}
 
 	function post($path, $func)
 	{
-		$this->res['post'][$path] = $func;
+		$this->addRoute($path, 'post', $func);
+	}
+
+	private function addRoute($pattern, $method, $func)
+	{
+		if (!isset($this->routes[$pattern])) {
+			$this->routes[$pattern] = new route($pattern);
+		}
+		$this->routes[$pattern]->$method = $func;
 	}
 
 	/**
@@ -100,38 +110,26 @@ class App
 
 	private function serve()
 	{
-		$op = strtolower($_SERVER['REQUEST_METHOD']);
-		if (!isset($this->res[$op])) {
-			return response::make(response::STATUS_METHOD_NOT_ALLOWED);
-		}
-
+		$method = strtolower($_SERVER['REQUEST_METHOD']);
 		$url = parse_url($_SERVER['REQUEST_URI']);
-		$requestedPath = $url['path'];
 
-		$match_args = [];
-		$match = null;
-		foreach ($this->res[$op] as $path => $func) {
-			$args = \havana_internal\match_url($requestedPath, $path);
-			if ($args === false) {
-				continue;
-			}
-
-			if (!$match || count($args) > count($match_args)) {
-				$match = $func;
-				$match_args = $args;
-			}
-		}
-
-		if (!$match) {
+		// Find the route that matches the url.
+		$matches = array_filter($this->routes, function (route $route) use ($url) {
+			return $route->matches($url['path']);
+		});
+		if (count($matches) == 0) {
 			return response::make(response::STATUS_NOTFOUND);
 		}
 
-		// If the given handler is a class, call its "run" method.
-		// If not, call the handler as a function.
-		if (!is_callable($match) && class_exists($match)) {
-			$match = [new $match, 'run'];
+		// Keep the ones that allow the requested method.
+		$routes = array_filter($matches, function (route $route) use ($method) {
+			return $route->$method != null;
+		});
+		if (count($routes) == 0) {
+			return response::make(response::STATUS_METHOD_NOT_ALLOWED);
 		}
-		$val = call_user_func_array($match, $match_args);
-		return response::make($val);
+		// Just take the first one that's left.
+		$route = reset($routes);
+		return response::make($route->exec($method, $url['path']));
 	}
 }
