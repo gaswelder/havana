@@ -103,14 +103,15 @@ class App
 	{
 		$method = strtolower($_SERVER['REQUEST_METHOD']);
 		$url = parse_url($_SERVER['REQUEST_URI']);
-		[$matches, $route] = $this->router->find($method, $url);
+		[$resource, $args] = $this->router->find($url['path']);
 
-		if (count($matches) == 0) {
+		if (!$resource) {
 			return response::make(response::STATUS_NOTFOUND);
 		}
-		if (!$route) {
+		if (!isset($resource[$method])) {
 			return response::make(response::STATUS_METHOD_NOT_ALLOWED);
 		}
-		return response::make($route->exec($method, $url['path']));
+		$r = call_user_func_array($resource[$method], $args);
+		return response::make($r);
 	}
 }

@@ -58,6 +58,5 @@ require __DIR__ . '/url.php';
 require __DIR__ . '/user.php';
 
 require __DIR__ . '/private/env.php';
-require __DIR__ . '/private/route.php';
 require __DIR__ . '/private/router.php';
 require __DIR__ . '/private/mime.php';
