@@ -72,6 +72,25 @@ class App
 		$this->router->add($path, 'post', $func);
 	}
 
+	function mount($path, $pattern, $resource)
+	{
+		// File-level
+		$methods = ['get', 'put', 'patch', 'delete'];
+		foreach ($methods as $method) {
+			if (method_exists($resource, $method)) {
+				$this->router->add("$path/$pattern", $method, [$resource, $method]);
+			}
+		}
+
+		// Directory-level
+		if (method_exists($resource, 'create')) {
+			$this->router->add($path, 'post', [$resource, 'create']);
+		}
+		if (method_exists($resource, 'getAll')) {
+			$this->router->add($path, 'get', [$resource, 'getAll']);
+		}
+	}
+
 	/**
 	 * Defines a console command.
 	 *
