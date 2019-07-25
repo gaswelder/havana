@@ -1,19 +1,17 @@
 <?php
+
 namespace havana;
 
-use havana_internal\route;
+use havana_internal\router;
 
 class Exception extends \Exception
-{
-
-}
+{ }
 
 class App
 {
-	private $routes = [];
 	private $commands = [];
-
 	private $dir;
+	private $router;
 
 	private $func = null;
 
@@ -22,6 +20,7 @@ class App
 	 */
 	function __construct($dir)
 	{
+		$this->router = new router();
 		$GLOBALS['__APPDIR'] = $dir;
 		$this->func = function () {
 			return $this->serve();
@@ -65,20 +64,12 @@ class App
 
 	function get($path, $func)
 	{
-		$this->addRoute($path, 'get', $func);
+		$this->router->add($path, 'get', $func);
 	}
 
 	function post($path, $func)
 	{
-		$this->addRoute($path, 'post', $func);
-	}
-
-	private function addRoute($pattern, $method, $func)
-	{
-		if (!isset($this->routes[$pattern])) {
-			$this->routes[$pattern] = new route($pattern);
-		}
-		$this->routes[$pattern]->$method = $func;
+		$this->router->add($path, 'post', $func);
 	}
 
 	/**
@@ -112,33 +103,14 @@ class App
 	{
 		$method = strtolower($_SERVER['REQUEST_METHOD']);
 		$url = parse_url($_SERVER['REQUEST_URI']);
-
-		// Find the route that matches the url.
-		$matches = array_filter($this->routes, function (route $route) use ($url) {
-			return $route->matches($url['path']);
-		});
-		// Order the routes by specificity.
-		usort($matches, function (route $a, route $b) {
-			$s1 = $a->specificity();
-			$s2 = $b->specificity();
-			if ($s2 > $s1) return 1;
-			if ($s2 < $s1) return -1;
-			return 0;
-		});
+		[$matches, $route] = $this->router->find($method, $url);
 
 		if (count($matches) == 0) {
 			return response::make(response::STATUS_NOTFOUND);
 		}
-
-		// Keep the ones that allow the requested method.
-		$routes = array_filter($matches, function (route $route) use ($method) {
-			return $route->$method != null;
-		});
-		if (count($routes) == 0) {
+		if (!$route) {
 			return response::make(response::STATUS_METHOD_NOT_ALLOWED);
 		}
-		// Just take the first one that's left.
-		$route = reset($routes);
 		return response::make($route->exec($method, $url['path']));
 	}
 }
