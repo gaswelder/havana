@@ -1,11 +1,12 @@
 <?php
+
 namespace havana;
 
 class request
 {
 	private static $init = false;
-	private static $post = null;
-	private static $get = null;
+	private static $post = [];
+	private static $get = [];
 
 	static function get($key)
 	{
@@ -21,7 +22,7 @@ class request
 	 * Returns value of the given POST field.
 	 *
 	 * @param string $key
-	 * @return string|null
+	 * @return string|array|null
 	 */
 	static function post($key)
 	{

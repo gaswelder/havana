@@ -1,4 +1,5 @@
 <?php
+
 namespace havana_internal;
 
 class env
@@ -16,7 +17,7 @@ class env
 			if (strlen($line) == 0 || $line[0] == '#') {
 				continue;
 			}
-	
+
 			list($name, $val) = array_map('trim', explode('=', $line, 2));
 			if (getenv($name) !== false) {
 				continue;
