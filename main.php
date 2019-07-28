@@ -44,6 +44,17 @@ function dump()
 	call_user_func_array('var_dump', func_get_args());
 }
 
+function registerClasses($dir)
+{
+	spl_autoload_register(function ($className) use ($dir) {
+		$path = $dir . '/' . str_replace('\\', '/', $className) . '.php';
+		if (file_exists($path)) {
+			require_once($path);
+		}
+	});
+}
+
+registerClasses(__DIR__);
 
 
 require __DIR__ . '/app.php';
@@ -57,6 +68,5 @@ require __DIR__ . '/tpl.php';
 require __DIR__ . '/url.php';
 require __DIR__ . '/user.php';
 
-require __DIR__ . '/Appget/Env.php';
 require __DIR__ . '/private/router.php';
 require __DIR__ . '/private/mime.php';
