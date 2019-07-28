@@ -1,8 +1,8 @@
 <?php
 
-namespace havana_internal;
+namespace Appget;
 
-class env
+class Env
 {
 	/**
 	 * Reads environment variables from the given env-file.

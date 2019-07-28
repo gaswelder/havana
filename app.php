@@ -3,6 +3,7 @@
 namespace havana;
 
 use havana_internal\router;
+use Appget\Env;
 
 class Exception extends \Exception
 { }
@@ -28,9 +29,9 @@ class App
 		$this->dir = $dir;
 
 		// Read the .env file if it exists.
-		$env = $this->dir . '/.env';
-		if (file_exists($env)) {
-			\havana_internal\env::parse($env);
+		$endPath = $this->dir . '/.env';
+		if (file_exists($endPath)) {
+			Env::parse($endPath);
 		}
 
 		// Register a class loader that loads classes from the

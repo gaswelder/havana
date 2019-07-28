@@ -57,6 +57,6 @@ require __DIR__ . '/tpl.php';
 require __DIR__ . '/url.php';
 require __DIR__ . '/user.php';
 
-require __DIR__ . '/private/env.php';
+require __DIR__ . '/Appget/Env.php';
 require __DIR__ . '/private/router.php';
 require __DIR__ . '/private/mime.php';
