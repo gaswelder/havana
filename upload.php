@@ -83,7 +83,7 @@ class upload
 
 		$path = $dir . $this->newname();
 		if (!move_uploaded_file($this->info['tmp_name'], $path)) {
-			throw new Exception("could not move uploaded file $file[tmp_name]");
+			throw new Exception("could not move uploaded file " . $this->info['tmp_name']);
 		}
 
 		return $path;
@@ -102,7 +102,7 @@ class upload
 		}
 
 		if (!move_uploaded_file($this->info['tmp_name'], $path)) {
-			throw new Exception("could not move uploaded file $file[tmp_name]");
+			throw new Exception("could not move uploaded file " . $this->info['tmp_name']);
 		}
 
 		return $path;
