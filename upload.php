@@ -2,6 +2,8 @@
 
 namespace havana;
 
+use Appget\Exception;
+
 class upload
 {
 	private $info;
@@ -76,12 +78,12 @@ class upload
 		}
 
 		if (!is_dir($dir) && !@mkdir($dir, 0777, true)) {
-			panic("could not create upload directory '$dir'");
+			throw new Exception("could not create upload directory '$dir'");
 		}
 
 		$path = $dir . $this->newname();
 		if (!move_uploaded_file($this->info['tmp_name'], $path)) {
-			panic("could not move uploaded file $file[tmp_name]");
+			throw new Exception("could not move uploaded file $file[tmp_name]");
 		}
 
 		return $path;
@@ -100,7 +102,7 @@ class upload
 		}
 
 		if (!move_uploaded_file($this->info['tmp_name'], $path)) {
-			panic("could not move uploaded file $file[tmp_name]");
+			throw new Exception("could not move uploaded file $file[tmp_name]");
 		}
 
 		return $path;
@@ -151,7 +153,7 @@ class upload
 		);
 		$u = $m[2];
 		if (!isset($units[$u])) {
-			panic("Unknown size unit in '$s'");
+			throw new Exception("Unknown size unit in '$s'");
 			return -1;
 		}
 		return $m[1] * $units[$u];

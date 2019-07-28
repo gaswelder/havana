@@ -1,5 +1,6 @@
 <?php
-namespace havana;
+
+namespace DB;
 
 class dbobject
 {

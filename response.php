@@ -1,7 +1,9 @@
 <?php
+
 namespace havana;
 
 use havana_internal\mime;
+use Appget\Exception;
 
 class response
 {
@@ -49,7 +51,7 @@ class response
 	function setStatus($code)
 	{
 		if (!isset(self::$codes[$code])) {
-			panic("Unknown status code: $code");
+			throw new Exception("Unknown status code: $code");
 		}
 		$this->status = $code;
 		return $this;
@@ -105,7 +107,7 @@ class response
 			return;
 		}
 
-		panic('Unknown type of content: ' . gettype($this->content));
+		throw new Exception('Unknown type of content: ' . gettype($this->content));
 	}
 
 	/**
@@ -241,6 +243,6 @@ class response
 			return $r;
 		}
 
-		panic("Unknown response value type: " . gettype($val));
+		throw new Exception("Unknown response value type: " . gettype($val));
 	}
 }

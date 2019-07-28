@@ -1,5 +1,6 @@
 <?php
-namespace havana;
+
+namespace DB;
 
 use PDO;
 
@@ -12,7 +13,7 @@ class dummy_statement
         if ($type != PDO::FETCH_NUM) {
             return $this->rows;
         }
-        return array_map(function($row) {
+        return array_map(function ($row) {
             return array_values($row);
         }, $this->rows);
     }
@@ -23,7 +24,7 @@ class dummy_statement
     }
 }
 
-class dbclient_dummy extends dbclient
+class dbclient_dummy extends Client
 {
     private $func;
     function __construct($url)
@@ -32,7 +33,8 @@ class dbclient_dummy extends dbclient
         $this->func = [$url['host'], substr($url['path'], 1)];
     }
 
-    function run($query, $args) {
+    function run($query, $args)
+    {
         $st = new dummy_statement();
         $st->rows = call_user_func($this->func, $query, $args);
         return $st;

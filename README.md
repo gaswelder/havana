@@ -429,7 +429,7 @@ will return string:
 
 ```html
 <body>
-<p>Hello, Bob</p>
+  <p>Hello, Bob</p>
 </body>
 ```
 
@@ -447,13 +447,9 @@ use havana\user;
 There are also few global functions:
 
 ```php
-db();
 dd($var, ...);
 dump($var, ...);
-panic($message);
 ```
-
-Any error triggered by the library will be thrown as an instance of `havana\Exception`.
 
 ## Command-line scripts
 

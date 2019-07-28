@@ -1,22 +1,24 @@
 <?php
-namespace havana;
+
+namespace DB;
 
 use PDO;
 
-class dbclient_mysql extends dbclient
+class dbclient_mysql extends Client
 {
-    function __construct($url) {
+    function __construct($url)
+    {
         $u = parse_url($url);
         if (!isset($u['user'])) {
-			$u['user'] = null;
-		}
-		if (!isset($u['pass'])) {
-			$u['pass'] = null;
+            $u['user'] = null;
+        }
+        if (!isset($u['pass'])) {
+            $u['pass'] = null;
         }
         $dbname = substr($u['path'], 1);
         $spec = "mysql:dbname=$dbname;host=$u[host]";
         $this->db = new PDO($spec, $u['user'], $u['pass']);
-		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         /*
 		 * If we work with mysql and mysqlnd is used, get it to
