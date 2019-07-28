@@ -7,6 +7,7 @@ require __DIR__ . '/dbclient_dummy.php';
 
 use PDO;
 use PDOException;
+use DB\SQL;
 
 class DBException extends Exception
 {
@@ -160,7 +161,7 @@ class dbclient
 	 */
 	function insert($table, $row)
 	{
-		list($query, $args) = sqlWriter::insert($table, $row);
+		list($query, $args) = SQL::insert($table, $row);
 		$st = $this->run($query, $args);
 		$st->closeCursor();
 		return $this->db->lastInsertId();
@@ -213,73 +214,5 @@ class dbclient
 	function affectedRows()
 	{
 		return $this->affected_rows;
-	}
-}
-
-class sqlWriter
-{
-	static function insert($table, $row)
-	{
-		$cols = array_keys($row);
-		$header = '("' . implode('", "', $cols) . '")';
-
-		$placeholders = array_fill(0, count($row), '?');
-		$tuple = '(' . implode(', ', $placeholders) . ')';
-
-		$q = "INSERT INTO \"$table\" $header VALUES $tuple";
-		$args = array_values($row);
-		return [$q, $args];
-	}
-
-	static function update($table, $values, $filter)
-	{
-		$q = 'UPDATE "' . $table . '" SET ';
-
-		$args = [];
-
-		$set = [];
-		foreach ($values as $field => $value) {
-			$set[] = '"' . $field . '" = ?';
-			$args[] = $value;
-		}
-		$q .= implode(', ', $set);
-
-		$where = [];
-		foreach ($filter as $field => $value) {
-			$where[] = '"' . $field . '" = ?';
-			$args[] = $value;
-		}
-
-		$q .= ' WHERE ' . implode(' AND ', $where);
-
-		return [$q, $args];
-
-		$st = $this->db->prepare($q);
-		$r = $st->execute($args);
-		return $this->affectedRows();
-	}
-
-	static function select($table, $fields, $filter, $order)
-	{
-		$cond = [];
-		$values = [];
-		foreach ($filter as $field => $value) {
-			if ($value === null) {
-				$cond[] = '"' . $field . '" IS NULL';
-				continue;
-			}
-			$cond[] = '"' . $field . '" = ?';
-			$values[] = $value;
-		}
-		$keysList = '"' . implode('", "', $fields) . '"';
-
-		$q = "SELECT $keysList FROM \"$table\"";
-		if (!empty($cond)) {
-			$q .= ' WHERE ' . implode(' AND ', $cond);
-		}
-		if ($order) {
-			$q .= " ORDER BY $order";
-		}
-		return [$q, $values];
 	}
 }
