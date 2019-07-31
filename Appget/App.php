@@ -1,12 +1,9 @@
 <?php
 
-namespace havana;
+namespace Appget;
 
-use Appget\Env;
 use Appget\internal\router;
-
-class Exception extends \Exception
-{ }
+use havana\response;
 
 class App
 {

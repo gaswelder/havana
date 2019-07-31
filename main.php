@@ -28,7 +28,6 @@ function registerClasses($dir)
 registerClasses(__DIR__);
 
 
-require __DIR__ . '/app.php';
 require __DIR__ . '/lang.php';
 require __DIR__ . '/response.php';
 require __DIR__ . '/request.php';
