@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Appget\internal\router;
 
-class routerTest extends TestCase
+class RouterTest extends TestCase
 {
     function testMethods()
     {

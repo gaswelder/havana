@@ -10,7 +10,7 @@
     ]
   },
   "scripts": {
-    "test": "phpunit Appget/internal/*.test.php"
+    "test": "phpunit test/"
   },
   "require-dev": {
     "phpunit/phpunit": "^8.2"
