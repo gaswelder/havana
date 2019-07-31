@@ -8,6 +8,14 @@ class request
 	private static $post = [];
 	private static $get = [];
 
+	/**
+	 * Returns the request's method.
+	 */
+	static function method(): string
+	{
+		return $_SERVER['REQUEST_METHOD'];
+	}
+
 	static function get($key)
 	{
 		self::init();
@@ -46,10 +54,7 @@ class request
 
 	static function header($name)
 	{
-		/*
-		 * We would use getallheaders, but that is not available
-		 * of all servers.
-		 */
+		// getallheaders is not available on all servers.
 		$key = 'HTTP_' . str_replace('-', '_', strtoupper($name));
 		if (isset($_SERVER[$key])) {
 			return $_SERVER[$key];
