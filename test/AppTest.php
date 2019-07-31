@@ -11,5 +11,9 @@ class AppTest extends TestCase
 		$app->get('/', function () {
 			//
 		});
+
+		$app->define('options', '/', function () {
+			//
+		});
 	}
 }

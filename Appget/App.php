@@ -70,6 +70,11 @@ class App
 		$this->router->add($path, 'post', $func);
 	}
 
+	function define($method, $path, $func)
+	{
+		$this->router->add($path, $method, $func);
+	}
+
 	function mount($path, $pattern, $resource)
 	{
 		// File-level
