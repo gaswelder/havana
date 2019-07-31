@@ -2,8 +2,8 @@
 
 namespace havana;
 
-use havana_internal\router;
 use Appget\Env;
+use Appget\internal\router;
 
 class Exception extends \Exception
 { }

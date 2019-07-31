@@ -1,8 +1,8 @@
 <?php
 
-namespace havana_internal;
+namespace Appget\internal;
 
-use havana\Exception;
+use Appget\Exception;
 
 class router
 {
