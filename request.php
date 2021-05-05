@@ -64,36 +64,19 @@ class request
 
 	private static function init()
 	{
-		if (self::$init) return;
+		if (self::$init) {
+			return;
+		}
 		self::$init = true;
 
-		self::$post = array();
-		self::$get = array();
+		self::$post = [];
+		self::$get = [];
 
-		$mq = get_magic_quotes_gpc();
 		foreach ($_POST as $k => $v) {
-			if ($mq) {
-				$k = stripslashes($k);
-				$v = self::recurse($v, 'stripslashes');
-			}
 			self::$post[$k] = $v;
 		}
-
 		foreach ($_GET as $k => $v) {
-			if ($mq) {
-				$k = stripslashes($k);
-				$v = self::recurse($v, 'stripslashes');
-			}
 			self::$get[$k] = $v;
-		}
-	}
-
-	private static function recurse($value, $func)
-	{
-		if (is_array($value)) {
-			return array_map($func, $value);
-		} else {
-			return $func($value);
 		}
 	}
 
