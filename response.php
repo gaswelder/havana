@@ -233,6 +233,9 @@ class response
 		if ($val === null) {
 			return $r;
 		}
+
+		// If an HTTP code is returned from the handler,
+		// return a generic text response.
 		if (is_int($val) && isset(self::$codes[$val])) {
 			$r->setStatus($val);
 			$r->setContent(self::$codes[$val]);
