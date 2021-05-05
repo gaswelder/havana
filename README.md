@@ -185,14 +185,14 @@ echo $url->host; // example.net
 echo $url->domain; // http://example.net
 ```
 
-To get uploaded files use the `files` method:
+To get uploaded files use the `uploads` method:
 
 ```php
-$uploads = request::files('photos');
+$uploads = request::uploads('photos');
 $upload = $uploads[0];
 ```
 
-The `files` method works the same regardles of whether the file input was "multiple" or not. In all cases an array of `upload` objects is returned. An `upload` object can be investigated with methods:
+`uploads` returns an array of `upload` objects:
 
 ```php
 echo $upload->type(); // image/jpeg

@@ -91,61 +91,55 @@ class request
 		return new url($domain . $_SERVER['REQUEST_URI']);
 	}
 
-	static function files($input_name)
-	{
+	/**
+	 * Returns contents of $_FILES normalized as array.
+	 */
+	private static function php_files($input_name) {
 		if (!isset($_FILES[$input_name])) {
-			return array();
+			return [];
 		}
-
-		$files = array();
 		if (!is_array($_FILES[$input_name]['name'])) {
-			$files[] = $_FILES[$input_name];
-		} else {
-			$fields = array(
-				"type",
-				"tmp_name",
-				"error",
-				"size",
-				"name"
-			);
-			foreach ($_FILES[$input_name]['name'] as $i => $name) {
-				$input = array();
-				foreach ($fields as $f) {
-					$input[$f] = $_FILES[$input_name][$f][$i];
-				}
-				$files[] = $input;
-			}
+			return [$_FILES[$input_name]];
 		}
 
-		/*
-		 * Filter out files with errors
-		 */
-		$ok = array();
-		foreach ($files as $file) {
-			/*
-			 * This happens with multiple file inputs with the same
-			 * name marked with '[]'.
-			 */
+		$files = [];
+		$fields = [
+			"type",
+			"tmp_name",
+			"error",
+			"size",
+			"name"
+		];
+		foreach ($_FILES[$input_name]['name'] as $i => $name) {
+			$input = [];
+			foreach ($fields as $f) {
+				$input[$f] = $_FILES[$input_name][$f][$i];
+			}
+			$files[] = $input;
+		}
+		return $files;
+	}
+
+	/**
+	 * Returns files that were uploaded without errors.
+	 * 
+	 * @return array
+	 */
+	static function uploads($input_name)
+	{
+		$uploads = [];
+		foreach (self::php_files($input_name) as $file) {
+			// Happens with multiple file inputs with the same name marked with '[]'.
 			if ($file['error'] == UPLOAD_ERR_NO_FILE) {
 				continue;
 			}
-
 			if ($file['error'] || !$file['size']) {
-				$errstr = self::errstr($file['error']);
-				warning("Upload of file '$file[name]' failed ($errstr, size=$file[size])");
 				continue;
 			}
 			unset($file['error']);
-
-			$size = round($file['size'] / 1024, 2);
-			// h3::log("Upload: $file[name] ($size KB, $file[type])");
-
-			$ok[] = $file;
+			$uploads[] = new upload($file);
 		}
-
-		return array_map(function ($file) {
-			return new upload($file);
-		}, $ok);
+		return $uploads;
 	}
 
 	/**
